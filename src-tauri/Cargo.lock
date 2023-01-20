@@ -789,6 +789,7 @@ name = "genius-dashboard"
 version = "0.0.0"
 dependencies = [
  "network-tables",
+ "parking_lot",
  "serde",
  "serde_json",
  "tauri",
