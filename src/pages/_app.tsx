@@ -7,8 +7,9 @@ import {
 import type { AppProps } from 'next/app';
 import { useLocalStorage } from '@mantine/hooks';
 import { ColorProvider } from '@/components/ColorProvider';
+import { Layout } from '@/components/Layout';
 
-export default function App({ Component, pageProps }: AppProps) {
+const App = ({ Component, pageProps }: AppProps) => {
 	const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
 		key: 'colorScheme',
 		defaultValue: 'dark',
@@ -29,10 +30,18 @@ export default function App({ Component, pageProps }: AppProps) {
 	return (
 		<ColorProvider primaryColor={primaryColor} setPrimaryColor={setPrimaryColor}>
 			<ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
-				<MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
-					<Component {...pageProps} />
+				<MantineProvider
+					theme={{ colorScheme, primaryColor }}
+					withGlobalStyles
+					withNormalizeCSS
+				>
+					<Layout>
+						<Component {...pageProps} />
+					</Layout>
 				</MantineProvider>
 			</ColorSchemeProvider>
 		</ColorProvider>
 	);
 }
+
+export default App;

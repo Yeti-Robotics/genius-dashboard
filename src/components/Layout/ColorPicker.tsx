@@ -34,7 +34,7 @@ const useStyles = createStyles((theme) => {
 	};
 });
 
-const ColorPicker = () => {
+export const ColorPicker = () => {
 	const { classes } = useStyles();
 	const [opened, toggleOpened] = useToggle([false, true]);
 	const ref = useClickOutside(() => toggleOpened(false));
@@ -86,5 +86,3 @@ const ColorPicker = () => {
 		</div>
 	);
 };
-
-export default ColorPicker;

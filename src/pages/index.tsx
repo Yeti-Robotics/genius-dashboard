@@ -1,77 +1,30 @@
+import { invokeResult } from '@/utils/invokeResult';
+import { Button, Stack, TextInput } from '@mantine/core';
 import { useState } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
-import Image from 'next/image';
-import reactLogo from '../assets/react.svg';
-import tauriLogo from '../assets/tauri.svg';
-import nextLogo from '../assets/next.svg';
+import { listen } from '@tauri-apps/api/event';
+import { Message } from '@/types/Message';
+
+listen<Message>('message', ({ payload }) => {
+	console.log(payload);
+});
 
 const App = () => {
-	const [greetMsg, setGreetMsg] = useState('');
-	const [name, setName] = useState('');
+	const [teamNumber, setTeamNumber] = useState('');
 
-	const greet = async () => {
-		// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-		setGreetMsg(await invoke('greet', { name }));
-	}
+	const startClient = async () => {
+		const result = await invokeResult('start_client', {
+			addr: process.env.NODE_ENV === 'development' ? '127.0.0.1:5810' : '10.35.6.2:5810',
+		});
+	};
 
 	return (
-		<div className='container'>
-			<h1>Welcome to Tauri!</h1>
-
-			<div className='row'>
-				<span className='logos'>
-					<a href='https://nextjs.org' target='_blank'>
-						<Image
-							width={144}
-							height={144}
-							src={nextLogo}
-							className='logo next'
-							alt='Next logo'
-						/>
-					</a>
-				</span>
-				<span className='logos'>
-					<a href='https://tauri.app' target='_blank'>
-						<Image
-							width={144}
-							height={144}
-							src={tauriLogo}
-							className='logo tauri'
-							alt='Tauri logo'
-						/>
-					</a>
-				</span>
-				<span className='logos'>
-					<a href='https://reactjs.org' target='_blank'>
-						<Image
-							width={144}
-							height={144}
-							src={reactLogo}
-							className='logo react'
-							alt='React logo'
-						/>
-					</a>
-				</span>
-			</div>
-
-			<p>Click on the Tauri, Next, and React logos to learn more.</p>
-
-			<div className='row'>
-				<div>
-					<input
-						id='greet-input'
-						onChange={(e) => setName(e.currentTarget.value)}
-						placeholder='Enter a name...'
-					/>
-					<button type='button' onClick={() => greet()}>
-						Greet
-					</button>
-				</div>
-			</div>
-
-			<p>{greetMsg}</p>
+		<div>
+			<Stack>
+				<TextInput value={teamNumber} onChange={(e) => setTeamNumber(e.target.value)} />
+				<Button onClick={startClient}>Create client</Button>
+			</Stack>
 		</div>
 	);
-}
+};
 
 export default App;

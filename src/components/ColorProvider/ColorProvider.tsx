@@ -1,5 +1,5 @@
-import { DefaultMantineColor, MantineThemeOverride } from '@mantine/core';
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import { DefaultMantineColor } from '@mantine/core';
+import React, { createContext, ReactNode, useContext } from 'react';
 
 const ColorContext = createContext<{
 	primaryColor: DefaultMantineColor;
