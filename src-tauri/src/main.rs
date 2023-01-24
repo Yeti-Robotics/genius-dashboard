@@ -8,7 +8,7 @@ use std::{collections::HashMap, net::SocketAddr, str::FromStr};
 use network_tables::v4::SubscriptionOptions;
 use once_cell::sync::OnceCell;
 use parking_lot::Mutex;
-use tauri::{Window, Manager};
+use tauri::{Manager, Window};
 
 static CLIENTS: OnceCell<Mutex<HashMap<SocketAddr, network_tables::v4::Client>>> = OnceCell::new();
 
@@ -53,11 +53,20 @@ async fn start_client(window: Window, addr: &str) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+fn close_client(addr: &str) -> Result<(), String> {
+    let mut clients = CLIENTS.get().unwrap().lock();
+    let socket_addr = SocketAddr::from_str(addr).map_err(|e| e.to_string())?;
+
+    clients.remove(&socket_addr);
+    Ok(())
+}
+
 fn main() {
     CLIENTS.set(Mutex::new(HashMap::new())).unwrap();
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![start_client])
+        .invoke_handler(tauri::generate_handler![start_client, close_client])
         .setup(|app| {
             #[cfg(debug_assertions)] // only include this code on debug builds
             {

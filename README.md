@@ -1,6 +1,10 @@
-# Tauri + Next.js + Typescript
+# Genius Dashboard
 
-This template should help get you started developing with Tauri, Next.js and Typescript.
+A custom FRC Dashboard build with [Tauri](https://tauri.app), [Next.js](https://nextjs.org), [Mantine](https://mantine.dev), and my own custom [Network Tables v4 implementation](https://github.com/tsar-boomba/network-tables-rs). Designed from the ground up to be efficient, easy-to-use, and bazingly fast 🔥😎.
+
+## Development
+
+Make sure you have, [Node.js](https://nodejs.org), [Pnpm](https://pnpm.io), and [Rust](https://rust-lang.org/tools/install) installed, then run `pnpm i`, followed by `pnpm tauri dev` to get started making changes.
 
 ## Recommended IDE Setup
 

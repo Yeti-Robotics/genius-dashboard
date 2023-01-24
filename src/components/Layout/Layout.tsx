@@ -1,19 +1,18 @@
-import { Group, Stack } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import { ReactNode } from 'react';
-import { ColorPicker } from './ColorPicker';
-import { ThemeSwitch } from './ThemeSwitch';
-
+import { Header } from './Header';
+import { useDisclosure } from '@mantine/hooks';
 type Props = {
 	children: ReactNode;
 };
 
 export const Layout = ({ children }: Props) => {
+	const [opened, { close, toggle }] = useDisclosure(false);
+
 	return (
-		<Stack align='stretch' spacing={0}>
-			<Group>
-				<ThemeSwitch /> <ColorPicker />
-			</Group>
-			<Stack p='md'>{children}</Stack>
+		<Stack h='100vh' spacing={0}>
+			<Header opened={opened} toggle={toggle} close={close} />
+			<Stack sx={{ flexGrow: 1 }} p='md'>{children}</Stack>
 		</Stack>
 	);
 };

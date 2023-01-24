@@ -1,4 +1,4 @@
-type Type =
+export type Type =
 	| 'boolean'
 	| 'double'
 	| 'int'
@@ -15,5 +15,5 @@ export type Message = {
 	topic_name: string;
 	timestamp: number;
 	type: Type;
-	data: any;
+	data: unknown;
 };

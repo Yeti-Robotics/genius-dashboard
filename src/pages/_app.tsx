@@ -8,6 +8,14 @@ import type { AppProps } from 'next/app';
 import { useLocalStorage } from '@mantine/hooks';
 import { ColorProvider } from '@/components/ColorProvider';
 import { Layout } from '@/components/Layout';
+import { listen } from '@tauri-apps/api/event';
+import { Message } from '@/types/Message';
+import { getTopicStore } from '@/stores/topicsStore';
+
+const setTopic = getTopicStore().setTopic;
+
+// Handle messages from the server
+listen<Message>('message', ({ payload }) => setTopic(payload));
 
 const App = ({ Component, pageProps }: AppProps) => {
 	const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
