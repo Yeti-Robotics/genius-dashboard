@@ -1,4 +1,4 @@
-import { Card, Drawer, Group, Text } from '@mantine/core';
+import { Card, Drawer, Group, Text, useMantineTheme } from '@mantine/core';
 import { ThemeSwitch } from './ThemeSwitch';
 import { ColorPicker } from './ColorPicker';
 import { Burger } from '@mantine/core';
@@ -11,6 +11,8 @@ type Props = {
 };
 
 export const Header = ({ opened, toggle, close }: Props) => {
+	const theme = useMantineTheme();
+
 	return (
 		<Card shadow='lg' py={0} px='xs'>
 			<Group h={64} align='center'>
@@ -19,7 +21,15 @@ export const Header = ({ opened, toggle, close }: Props) => {
 					title={opened ? 'Open Menu' : 'Close Menu'}
 					onClick={toggle}
 				/>
-				<Text size='xl' fw={700}>
+				<Text
+					variant='gradient'
+					gradient={{
+						from: theme.colors[theme.primaryColor][8],
+						to: theme.colors[theme.primaryColor][5],
+					}}
+					size='xl'
+					fw={700}
+				>
 					Genius Dashboard
 				</Text>
 			</Group>

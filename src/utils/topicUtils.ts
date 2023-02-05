@@ -3,9 +3,13 @@ import { MapOrValue } from '@/types/utils';
 
 // Essentially this replaces the keys which are in the message topic name with copies
 // of the original up until the last key, where it puts the new message
-export const setTopicFromName = (message: Message, o: MapOrValue<Message>): MapOrValue<Message> => {
-	const topics = message.topic_name.slice(1).split('/');
-	const newTopics: MapOrValue<Message> = {};
+export const setTopicFromName = <T extends object>(
+	topic: string,
+	value: T,
+	o: MapOrValue<T>
+): MapOrValue<T> => {
+	const topics = topic.slice(1).split('/');
+	const newTopics: MapOrValue<T> = {};
 	let nestLevel = o;
 	let mutate = newTopics;
 
@@ -14,11 +18,12 @@ export const setTopicFromName = (message: Message, o: MapOrValue<Message>): MapO
 		const topic = topics[i];
 
 		if (isLast) {
-			mutate[topic] = message;
+			mutate[topic] = value;
 		} else {
 			if (!(topic in nestLevel)) {
-				(nestLevel as Record<string, MapOrValue<Message>>)[topic] = {};
-				nestLevel = (nestLevel as Record<string, MapOrValue<Message>>)[topic];
+				Object.assign(mutate, nestLevel);
+				(nestLevel as Record<string, MapOrValue<T>>)[topic] = {};
+				nestLevel = (nestLevel as Record<string, MapOrValue<T>>)[topic];
 				mutate[topic] = {};
 				(mutate as any) = mutate[topic];
 			} else {
@@ -33,16 +38,16 @@ export const setTopicFromName = (message: Message, o: MapOrValue<Message>): MapO
 	return newTopics;
 };
 
-export const getTopicFromName = (
+export const getTopicFromName = <T extends object>(
 	name: string,
-	o: MapOrValue<Message>
-): MapOrValue<Message> | undefined => {
+	o: MapOrValue<T>
+): MapOrValue<T> | undefined => {
 	const topics = name.slice(1).split('/');
 	let nestLevel = o;
 
 	for (let i = 0; i < topics.length; i += 1) {
 		const topic = topics[i];
-		nestLevel = (nestLevel as Record<string, MapOrValue<Message>>)?.[topic];
+		nestLevel = (nestLevel as Record<string, MapOrValue<T>>)?.[topic];
 		if (!nestLevel) return;
 	}
 

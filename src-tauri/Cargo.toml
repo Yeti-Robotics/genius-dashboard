@@ -17,7 +17,7 @@ tauri-build = { version = "1.2", features = [] }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2", features = ["shell-open"] }
-network-tables = { version = "0.0.4", features = ["client-v4"] }
+network-tables = { version = "0.0.4", path = "../../network-tables", features = ["client-v4"] }
 tokio = { version = "1.24.2", features = ["rt", "rt-multi-thread", "parking_lot"] }
 parking_lot = "0.12.1"
 once_cell = { version = "1.17.0", features = ["parking_lot"] }

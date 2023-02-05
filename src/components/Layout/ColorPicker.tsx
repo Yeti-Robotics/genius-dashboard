@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { useClickOutside, useToggle } from '@mantine/hooks';
 import { usePrimaryColor } from '../ColorProvider';
-import { IconDroplet, IconCheck } from '@tabler/icons';
+import { IconDroplet, IconCheck } from '@tabler/icons-react';
 
 const useStyles = createStyles((theme) => {
 	const colors = theme.fn.variant({ color: theme.primaryColor, variant: 'filled' });
@@ -56,7 +56,7 @@ export const ColorPicker = () => {
 				}}
 				onClick={() => setPrimaryColor(color)}
 			>
-				{isSelected ? <IconCheck /> : <></>}
+				{isSelected ? <IconCheck /> :  null}
 			</ThemeIcon>
 		);
 	});

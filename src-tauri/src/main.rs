@@ -5,7 +5,7 @@
 
 use std::{collections::HashMap, net::SocketAddr, str::FromStr};
 
-use network_tables::v4::SubscriptionOptions;
+use network_tables::v4::{Config, SubscriptionOptions};
 use once_cell::sync::OnceCell;
 use parking_lot::Mutex;
 use tauri::{Manager, Window};
@@ -24,13 +24,22 @@ async fn start_client(window: Window, addr: &str) -> Result<(), String> {
         socket_addr
     };
 
-    let client = network_tables::v4::Client::try_new(socket_addr)
-        .await
-        .map_err(|e| e.to_string())?;
+    let event_handler_window = window.clone();
+    let client = network_tables::v4::Client::try_new_w_config(
+        socket_addr,
+        Config {
+            on_announce: Box::new(move |announced_topics| {
+                event_handler_window.emit("announce", announced_topics).ok();
+            }),
+            ..Default::default()
+        },
+    )
+    .await
+    .map_err(|e| e.to_string())?;
 
     let mut subscription = client
         .subscribe_w_options(
-            &["/SmartDashboard", "/GeniusDashboard"],
+            &[""],
             Some(SubscriptionOptions {
                 all: Some(true),
                 prefix: Some(true),

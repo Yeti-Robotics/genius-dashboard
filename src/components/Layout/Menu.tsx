@@ -1,10 +1,21 @@
 import { useState } from 'react';
-import { createStyles, Navbar, Group, Box, Burger, Text } from '@mantine/core';
-import { IconPlus, IconReload, IconSettings } from '@tabler/icons';
+import {
+	createStyles,
+	Navbar,
+	Group,
+	Box,
+	Burger,
+	Text,
+	Stack,
+	TextInput,
+	Button,
+} from '@mantine/core';
+import { IconPlus, IconReload, IconSettings } from '@tabler/icons-react';
 import { useAllBoards, useBoardActions, useCurrentBoardName } from '@/stores/boardStore';
 import { invokeResult } from '@/utils/invokeResult';
 import { ThemeSwitch } from './ThemeSwitch';
 import { ColorPicker } from './ColorPicker';
+import { closeAllModals, openContextModal, openModal } from '@mantine/modals';
 
 const useStyles = createStyles((theme, _params, getRef) => {
 	const icon = getRef('icon');
@@ -64,21 +75,56 @@ type Props = {
 	toggle: () => void;
 };
 
+const CreateBoardModal = () => {
+	const [boardName, setBoardName] = useState('');
+	const [error, setError] = useState('');
+	const boards = useAllBoards();
+	const { setBoard } = useBoardActions();
+
+	return (
+		<Stack>
+			<TextInput
+				label='Board Name'
+				value={boardName}
+				error={error || undefined}
+				onChange={(e) => {
+					if (e.target.value in boards) setError('Name must be unique');
+					setError('');
+					setBoardName(e.target.value);
+				}}
+			/>
+			<Button
+				color={error ? 'red' : undefined}
+				onClick={() => {
+					if (!boardName) return setError('Must not be empty');
+					if (error) return;
+					setBoard(boardName, {
+						name: boardName,
+						widgets: [],
+						settings: {},
+					});
+					closeAllModals();
+				}}
+			>
+				Create
+			</Button>
+		</Stack>
+	);
+};
+
 export const Menu = ({ opened, toggle }: Props) => {
 	const { classes, cx } = useStyles();
 	const { setCurrentBoard } = useBoardActions();
 	const currentBoardName = useCurrentBoardName();
 	const boards = Object.keys(useAllBoards());
-	const [active, setActive] = useState(currentBoardName);
 
 	const links = boards.map((boardName, i) => (
 		<Box
-			className={cx(classes.link, { [classes.linkActive]: boardName === active })}
+			className={cx(classes.link, { [classes.linkActive]: boardName === currentBoardName })}
 			key={boardName}
 			data-autofocus={i === 0}
 			onClick={(event) => {
 				event.preventDefault();
-				setActive(boardName);
 				setCurrentBoard(boardName);
 			}}
 		>
@@ -103,7 +149,13 @@ export const Menu = ({ opened, toggle }: Props) => {
 			</Navbar.Section>
 
 			<Navbar.Section className={classes.footer}>
-				<div className={classes.link} onClick={(e) => e.preventDefault()}>
+				<div
+					className={classes.link}
+					onClick={(e) => {
+						e.preventDefault();
+						openModal({ title: 'Create a new board', children: <CreateBoardModal /> });
+					}}
+				>
 					<IconPlus className={classes.linkIcon} stroke={1.5} />
 					<span>Create a board</span>
 				</div>

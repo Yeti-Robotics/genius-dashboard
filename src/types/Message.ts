@@ -15,5 +15,5 @@ export type Message = {
 	topic_name: string;
 	timestamp: number;
 	type: Type;
-	data: unknown;
+	data: boolean | number | string | number[] | boolean[] | string[] | null;
 };
