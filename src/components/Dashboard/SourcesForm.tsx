@@ -4,7 +4,13 @@ import { MapOrValue } from '@/types/utils';
 import { Button, Card, Collapse, Group, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { closeModal, openModal } from '@mantine/modals';
-import { createContext, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import {
+	createContext,
+	Dispatch,
+	SetStateAction,
+	useEffect,
+	useState,
+} from 'react';
 import { Source } from '.';
 import { Tree } from '../Tree';
 import { isSmartDashboardChooser, isTopic } from './assertions';
@@ -14,7 +20,6 @@ type Props = {
 	sources: Record<string, string>;
 	setSources: Dispatch<SetStateAction<Record<string, string>>>;
 };
-const SusContext = createContext<Record<string, string>>({});
 
 const SelectSource = ({
 	name,
@@ -30,6 +35,7 @@ const SelectSource = ({
 	openedTree: string | undefined;
 	setOpenedTree: Dispatch<SetStateAction<string | undefined>>;
 }) => {
+	const [selected, setSelected] = useState<string | undefined>(sources[name]);
 	const opened = openedTree === name;
 	const open = () => setOpenedTree(name);
 	const close = () => setOpenedTree(undefined);
@@ -44,15 +50,20 @@ const SelectSource = ({
 			<Card withBorder>
 				<Stack spacing={0}>
 					<Text inline size={24} fw={600}>
-						{name} {sourceDef.required && <Text display='inline' color='red'>*</Text>}
+						{name}{' '}
+						{sourceDef.required && (
+							<Text display='inline' color='red'>
+								*
+							</Text>
+						)}
 					</Text>
 					<Text>{sourceDef.description}</Text>
-					{sources[name] !== undefined && (
+					{selected !== undefined && (
 						<Stack spacing={0} mt='md'>
 							<Text size='xl' fw={600}>
 								Selected Source:
 							</Text>
-							<Text>{sources[name]}</Text>
+							<Text>{selected}</Text>
 						</Stack>
 					)}
 					<Button mt='md' onClick={() => toggle()}>
@@ -65,15 +76,20 @@ const SelectSource = ({
 					tree={topics}
 					hasChildren={((sub: MapOrValue<Topic>) => !isTopic(sub)) as any}
 					onSelect={(selectable, trail) => {
-						console.log(trail);
 						if (sourceDef.type === 'topic') {
 							if (isTopic(selectable, sourceDef.types)) {
-								console.log('set sorces');
 								setSources((prev) => ({ ...prev, [name]: selectable.name }));
+								setSelected(selectable.name);
 							}
 						} else if (sourceDef.type === 'smartDashboardChooser') {
-							if (isSmartDashboardChooser(selectable, isTopic))
-								setSources((prev) => ({ ...prev, [name]: trail.join('/') }));
+							if (isSmartDashboardChooser(selectable, isTopic)) {
+								const topic = `/${trail.join('/')}`;
+								setSources((prev) => ({
+									...prev,
+									[name]: `/${trail.join('/')}`,
+								}));
+								setSelected(topic);
+							}
 						}
 
 						// Success close this tree
@@ -91,7 +107,9 @@ const SelectSource = ({
 							if (isTopic(sub)) return sourceDef.types.includes(sub.type);
 							else return true;
 						} else if (sourceDef.type === 'smartDashboardChooser') {
-							return (!isTopic(sub) && isSmartDashboardChooser(sub, isTopic)) || true;
+							return (
+								(!isTopic(sub) && isSmartDashboardChooser(sub, isTopic)) || true
+							);
 						} else return true;
 					}}
 				/>
@@ -105,18 +123,20 @@ export const SourcesForm = (props: Props) => {
 
 	return (
 		<Stack>
-			{Object.entries(props.sourcesDefinitions).map(([sourceName, sourceDef]) => {
-				return (
-					<SelectSource
-						{...props}
-						openedTree={openedTree}
-						setOpenedTree={setOpenedTree}
-						name={sourceName}
-						sourceDef={sourceDef}
-						key={sourceName}
-					/>
-				);
-			})}
+			{Object.entries(props.sourcesDefinitions).map(
+				([sourceName, sourceDef]) => {
+					return (
+						<SelectSource
+							{...props}
+							openedTree={openedTree}
+							setOpenedTree={setOpenedTree}
+							name={sourceName}
+							sourceDef={sourceDef}
+							key={sourceName}
+						/>
+					);
+				}
+			)}
 		</Stack>
 	);
 };

@@ -5,31 +5,32 @@
 
 use std::{collections::HashMap, net::SocketAddr, str::FromStr};
 
-use network_tables::v4::{Config, SubscriptionOptions};
+use network_tables::v4::{Config, PublishedTopic, SubscriptionOptions, Type};
 use once_cell::sync::OnceCell;
-use parking_lot::Mutex;
 use tauri::{Manager, Window};
+use tokio::sync::Mutex;
 
-static CLIENTS: OnceCell<Mutex<HashMap<SocketAddr, network_tables::v4::Client>>> = OnceCell::new();
+static CLIENT: OnceCell<Mutex<Option<network_tables::v4::Client>>> = OnceCell::new();
+static PUBLISHED_TOPICS: OnceCell<Mutex<HashMap<String, PublishedTopic>>> = OnceCell::new();
 
-#[tauri::command]
-async fn start_client(window: Window, addr: &str) -> Result<(), String> {
-    let socket_addr = {
-        let clients = CLIENTS.get().unwrap().lock();
-        let socket_addr = SocketAddr::from_str(addr).map_err(|e| e.to_string())?;
-
-        if clients.contains_key(&socket_addr) {
-            return Ok(());
-        }
-        socket_addr
-    };
-
-    let event_handler_window = window.clone();
-    let client = network_tables::v4::Client::try_new_w_config(
-        socket_addr,
+async fn create_new_client(
+    window: &Window,
+    addr: SocketAddr,
+) -> Result<network_tables::v4::Client, String> {
+    let on_announce_window = window.clone();
+    let on_disconnect_window = window.clone();
+    let on_reconnect_window = window.clone();
+    let new_client = network_tables::v4::Client::try_new_w_config(
+        addr,
         Config {
             on_announce: Box::new(move |announced_topics| {
-                event_handler_window.emit("announce", announced_topics).ok();
+                on_announce_window.emit("announce", announced_topics).ok();
+            }),
+            on_disconnect: Box::new(move || {
+                on_disconnect_window.emit("disconnect", ()).ok();
+            }),
+            on_reconnect: Box::new(move || {
+                on_reconnect_window.emit("reconnect", ()).ok();
             }),
             ..Default::default()
         },
@@ -37,7 +38,7 @@ async fn start_client(window: Window, addr: &str) -> Result<(), String> {
     .await
     .map_err(|e| e.to_string())?;
 
-    let mut subscription = client
+    let mut subscription = new_client
         .subscribe_w_options(
             &[""],
             Some(SubscriptionOptions {
@@ -49,8 +50,6 @@ async fn start_client(window: Window, addr: &str) -> Result<(), String> {
         .await
         .map_err(|e| e.to_string())?;
 
-    let mut clients = CLIENTS.get().unwrap().lock();
-    clients.insert(socket_addr, client);
     let window = window.clone();
     tauri::async_runtime::spawn(async move {
         while let Some(message) = subscription.next().await {
@@ -59,23 +58,96 @@ async fn start_client(window: Window, addr: &str) -> Result<(), String> {
         }
     });
 
+    Ok(new_client)
+}
+
+/// Starts / restarts client connecting to addr
+#[tauri::command]
+async fn start_client(window: Window, addr: &str) -> Result<(), String> {
+    let socket_addr = SocketAddr::from_str(addr).map_err(|e| e.to_string())?;
+    let new_client = create_new_client(&window, socket_addr).await?;
+    // Must clear published topics when creating a new client
+    PUBLISHED_TOPICS.get().unwrap().lock().await.clear();
+    *CLIENT.get().unwrap().lock().await = Some(new_client);
+
     Ok(())
 }
 
 #[tauri::command]
-fn close_client(addr: &str) -> Result<(), String> {
-    let mut clients = CLIENTS.get().unwrap().lock();
-    let socket_addr = SocketAddr::from_str(addr).map_err(|e| e.to_string())?;
+async fn close_client() {
+    *CLIENT.get().unwrap().lock().await = None;
+}
 
-    clients.remove(&socket_addr);
+#[tauri::command]
+async fn update_topic(window: Window, topic: &str) -> Result<(), String> {
+    if let Some(client) = CLIENT.get().unwrap().lock().await.as_ref() {
+        let mut subscription = client
+            .subscribe_w_options(
+                &[topic],
+                Some(SubscriptionOptions {
+                    all: Some(true),
+                    ..Default::default()
+                }),
+            )
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let window = window.clone();
+        tauri::async_runtime::spawn(async move {
+            if let Some(message) = subscription.next().await {
+                window.emit("message", message).ok();
+                // TODO log err if it occurs somehow
+            }
+        });
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn publish_value(
+    topic: String,
+    topic_type: Type,
+    value: network_tables::Value,
+) -> Result<(), String> {
+    if let Some(client) = CLIENT.get().unwrap().lock().await.as_ref() {
+        let mut published_topics = PUBLISHED_TOPICS.get().unwrap().lock().await;
+        if let Some(existing) = published_topics.get(&topic) {
+            client
+                .publish_value(existing, &value)
+                .await
+                .map_err(|e| e.to_string())?;
+        } else {
+            let published_topic = client
+                .publish_topic(&topic, topic_type, None)
+                .await
+                .map_err(|e| e.to_string())?;
+
+            let result = client
+                .publish_value(&published_topic, &value)
+                .await
+                .map_err(|e| e.to_string());
+            // Add topic into hashmap no matter what
+            published_topics.insert(topic, published_topic);
+
+            result?;
+        }
+    }
+
     Ok(())
 }
 
 fn main() {
-    CLIENTS.set(Mutex::new(HashMap::new())).unwrap();
+    CLIENT.set(Mutex::new(None)).unwrap();
+    PUBLISHED_TOPICS.set(Mutex::new(HashMap::new())).unwrap();
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![start_client, close_client])
+        .invoke_handler(tauri::generate_handler![
+            start_client,
+            close_client,
+            publish_value,
+            update_topic
+        ])
         .setup(|app| {
             #[cfg(debug_assertions)] // only include this code on debug builds
             {

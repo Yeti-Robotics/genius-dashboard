@@ -1,8 +1,10 @@
-import { Message } from '@/types/Message';
+import { isTopic } from '@/components/Dashboard/assertions';
+import { Message, MessageType, Type } from '@/types/Message';
 import { Topic } from '@/types/Topic';
 import { MapOrValue } from '@/types/utils';
-import { getTopicFromName, setTopicFromName } from '@/utils/topicUtils';
+import { getTopicFromName, publishValue, setTopicFromName } from '@/utils/topicUtils';
 import { create } from 'zustand';
+import { shallow } from 'zustand/shallow';
 
 type TopicStore = {
 	topicData: MapOrValue<Message>;
@@ -35,9 +37,7 @@ export const getTopicStore = () => useTopicStore.getState();
  * @param name Topic name
  * @returns Updates to this topic or its sub-topics if it has any
  */
-export const useTopicData = <T extends { [key: string]: string }>(
-	names: T
-) => {
+export const useTopicData = <T extends { [key: string]: string }>(names: T) => {
 	return useTopicStore(
 		(state) =>
 			Object.fromEntries(
@@ -45,9 +45,44 @@ export const useTopicData = <T extends { [key: string]: string }>(
 					k,
 					getTopicFromName(name, state.topicData),
 				])
-			) as { [K in keyof T]: MapOrValue<Message> | undefined }
+			) as { [K in keyof T]: MapOrValue<Message> | undefined },
+		shallow
 	);
 };
 
+export const useAllTopicData = () => useTopicStore((state) => state.topicData);
+
 export const useAnnouncedTopics = (): MapOrValue<Topic> =>
 	useTopicStore((state) => state.announcedTopics);
+
+export const useTopic = <T extends { [key: string]: string }>(names: T) => {
+	return useTopicStore(
+		(state) =>
+			Object.fromEntries(
+				Object.entries(names).map(([k, name]) => [
+					k,
+					getTopicFromName(name, state.announcedTopics),
+				])
+			) as { [K in keyof T]: MapOrValue<Topic> | undefined },
+		shallow
+	);
+};
+
+/**
+ * Creates a function that changes the topic locally and sends the value off to the server
+ * */
+export const usePublishValue = (topic: string) => {
+	const setTopic = useTopicStore((state) => state.setTopic);
+	const { topicDef } = useTopic({ topicDef: topic });
+	return (newValue: MessageType) => {
+		if (!isTopic(topicDef)) throw new Error('`usePublishValue` topic must not have children.');
+
+		publishValue({
+			topic,
+			topicType: topicDef.type,
+			value: newValue,
+		});
+		// This will cause rerender 👍
+		setTopic({ topic_name: topic, data: newValue, timestamp: 1, type: topicDef.type });
+	};
+};

@@ -8,6 +8,7 @@ export type Widget = {
 	width: number;
 	height: number;
 	name: string;
+	locked: boolean;
 	sources: Record<string, string>;
 	options: Record<string, any>;
 	display: keyof typeof WIDGET_NAME_MAP;
@@ -31,6 +32,9 @@ type Actions = {
 	setBoard: (name: string, newBoard: Partial<Board>) => void;
 	/** Adds new widget, replacing widget with `widgetName` */
 	addWidget: (boardName: string, widgetName: string, newWidget: Widget) => void;
+	/** Updates widget with the new properties */
+	setWidget: (boardName: string, widgetName: string, newWidget: Partial<Widget>) => void;
+	removeWidget: (boardName: string, widgetName: string) => void;
 	/** Moves the dragging widget to the start of widgets array */
 	onDragStart: (boardName: string, widgetName: string) => void;
 	/** Call when dragging ends */
@@ -94,6 +98,30 @@ const useBoardStore = create<BoardStore>()(
 							},
 						},
 					})),
+				setWidget: (boardName, widgetName, newProps) =>
+					set(({ boards }) => ({
+						boards: {
+							...boards,
+							[boardName]: {
+								...boards[boardName],
+								widgets: boards[boardName].widgets.map((w) =>
+									w.name === widgetName ? { ...w, ...newProps } : w
+								),
+							},
+						},
+					})),
+				removeWidget: (boardName, widgetName) =>
+					set(({ boards }) => ({
+						boards: {
+							...boards,
+							[boardName]: {
+								...boards[boardName],
+								widgets: boards[boardName].widgets.filter(
+									(w) => w.name !== widgetName
+								),
+							},
+						},
+					})),
 				setHasHydrated: (newHasHydrated) =>
 					set({
 						_hasHydrated: newHasHydrated,
@@ -102,12 +130,27 @@ const useBoardStore = create<BoardStore>()(
 		}),
 		{
 			name: 'boards',
-			storage: createJSONStorage(() => localStorage),
+			storage: createJSONStorage(() => ({
+				setItem: (...args) => window.localStorage.setItem(...args),
+				removeItem: (...args) => window.localStorage.removeItem(...args),
+				getItem: async (...args) =>
+					new Promise((resolve) => {
+						if (typeof window === 'undefined') {
+							resolve(null);
+						} else {
+							setTimeout(() => {
+								resolve(window.localStorage.getItem(...args));
+							}, 0);
+						}
+					}),
+			})),
 			partialize: (state) => ({ boards: state.boards, currentBoard: state.currentBoard }),
-			onRehydrateStorage: () => (state, err) => {
-				console.log('hydration', state, err);
-				state?.actions.setHasHydrated(true);
-				console.log(state?._hasHydrated);
+			onRehydrateStorage: (state) => {
+				console.log('Hydrating with:', state);
+				return (state, err) => {
+					state?.actions.setHasHydrated(true);
+					if (err) console.error('Error while hydrating from localStorage:', err);
+				};
 			},
 		}
 	)
@@ -125,3 +168,6 @@ export const useCurrentBoard = () =>
 export const useCurrentBoardName = () => useBoardStore(({ currentBoard }) => currentBoard);
 
 export const useBoardsHydrated = () => useBoardStore((state) => state._hasHydrated);
+
+export const useWidget = (boardName: string, widgetName: string) =>
+	useBoardStore((state) => state.boards[boardName].widgets.find((w) => w.name === widgetName));

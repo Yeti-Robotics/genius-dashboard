@@ -1,5 +1,6 @@
-import { Message } from '@/types/Message';
+import { MessageType, Type } from '@/types/Message';
 import { MapOrValue } from '@/types/utils';
+import { invokeResult } from './invokeResult';
 
 // Essentially this replaces the keys which are in the message topic name with copies
 // of the original up until the last key, where it puts the new message
@@ -18,6 +19,7 @@ export const setTopicFromName = <T extends object>(
 		const topic = topics[i];
 
 		if (isLast) {
+			Object.assign(mutate, nestLevel);
 			mutate[topic] = value;
 		} else {
 			if (!(topic in nestLevel)) {
@@ -53,3 +55,6 @@ export const getTopicFromName = <T extends object>(
 
 	return nestLevel;
 };
+
+export const publishValue = (params: { topic: string; topicType: Type; value: MessageType }) =>
+	invokeResult<void, string>('publish_value', params);

@@ -78,7 +78,6 @@ export const ConfigureWidgetModal = <K extends keyof typeof WIDGET_NAME_MAP>({
 					const optionsValid = await trigger();
 					if (!optionsValid || !sourcesFilled) return setSubmitting(false);
 					const options = getValues();
-					console.log(options);
 					addWidget(board.name, displayName, {
 						name: displayName,
 						display: name,
@@ -86,6 +85,7 @@ export const ConfigureWidgetModal = <K extends keyof typeof WIDGET_NAME_MAP>({
 						sources,
 						x: 100,
 						y: 300,
+						locked: false,
 						height: 0,
 						width: 0,
 					});

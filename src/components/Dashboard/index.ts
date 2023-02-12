@@ -1,6 +1,8 @@
 import { MapOrValue } from '@/types/utils';
 import { SimpleDisplay } from './widgets/SimpleDisplay';
 import { Message, Type } from '@/types/Message';
+import { SmartDashboardChooser } from './widgets/SmartDashboardChooser';
+import { Toggle } from './widgets/Toggle';
 
 export { Dashboard } from './Dashboard';
 
@@ -47,6 +49,7 @@ export type WidgetComponent<
 	Component: (props: {
 		data: { [K in keyof S]: MapOrValue<Message> | undefined };
 		options: { [K in keyof O]: OptionDefToType<O[K]> };
+		sources: { [K in keyof S]: string };
 	}) => JSX.Element;
 	description: string;
 	sources: S;
@@ -62,4 +65,6 @@ export const WIDGET_NAME_MAP: Record<
 	of any WidgetComponent
 	*/
 	simple: SimpleDisplay as any,
+	smartDashboardChooser: SmartDashboardChooser as any,
+	toggle: Toggle as any,
 };

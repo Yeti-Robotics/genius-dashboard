@@ -10,7 +10,7 @@ export const SimpleDisplay: WidgetComponent<
 	}
 > = {
 	Component: ({ data, options }) => {
-		if (!data)
+		if (!data.data)
 			return (
 				<Center>
 					<Text>Waiting on data...</Text>

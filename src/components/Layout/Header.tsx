@@ -33,7 +33,7 @@ export const Header = ({ opened, toggle, close }: Props) => {
 					Genius Dashboard
 				</Text>
 			</Group>
-			<Drawer withCloseButton={false} opened={opened} onClose={close}>
+			<Drawer withCloseButton={false} opened={opened} onClose={close} padding={0} styles={{ body: { height: '100vh' } }}>
 				<Menu opened={opened} toggle={toggle} />
 			</Drawer>
 		</Card>

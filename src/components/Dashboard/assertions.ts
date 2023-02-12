@@ -1,4 +1,4 @@
-import { Message, Type } from '@/types/Message';
+import { Message, SmartDashboardChooser, Type } from '@/types/Message';
 import { Topic } from '@/types/Topic';
 
 export const isMessage = (o: unknown, allowedTypes?: Type[]): o is Message =>
@@ -14,15 +14,7 @@ export const isMessage = (o: unknown, allowedTypes?: Type[]): o is Message =>
 export const isSmartDashboardChooser = (
 	o: unknown,
 	isKeyType: (o: unknown, allowedTypes?: Type[]) => boolean
-): o is {
-	['.controllable']: Message;
-	['.instance']: Message;
-	['.name']: Message;
-	['.type']: Message;
-	active: Message;
-	default: Message;
-	options: Message;
-} => {
+): o is SmartDashboardChooser => {
 	if (o === undefined || o === null) return false;
 	if (isKeyType(o)) return false;
 	if (!(typeof o === 'object')) return false;

@@ -3,21 +3,22 @@
 	"private": true,
 	"version": "0.0.0",
 	"scripts": {
-		"dev": "next dev -p 1420",
-		"build": "next build && next export -o dist",
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
 		"tauri": "tauri",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@emotion/react": "11.10.5",
 		"@emotion/server": "11.10.0",
-		"@mantine/core": "5.10.2",
-		"@mantine/hooks": "5.10.2",
-		"@mantine/modals": "5.10.2",
-		"@mantine/next": "5.10.2",
+		"@mantine/core": "6.0.0-alpha.5",
+		"@mantine/hooks": "6.0.0-alpha.5",
+		"@mantine/modals": "6.0.0-alpha.5",
+		"@mantine/next": "6.0.0-alpha.5",
+		"@mantine/notifications": "6.0.0-alpha.5",
 		"@tabler/icons-react": "2.1.2",
 		"@tauri-apps/api": "1.2.0",
-		"next": "13.1.6",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"react-draggable": "4.4.5",
@@ -29,6 +30,8 @@
 		"@types/node": "18.7.11",
 		"@types/react": "18.0.27",
 		"@types/react-dom": "18.0.10",
-		"typescript": "4.9.4"
+		"@vitejs/plugin-react": "^3.1.0",
+		"typescript": "4.9.4",
+		"vite": "^4.1.1"
 	}
 }

@@ -1,9 +1,9 @@
 import { Button, Card, Text } from '@mantine/core';
-import { Option, OptionDefToType, WIDGET_NAME_MAP } from '..';
+import { Option, WIDGET_NAME_MAP } from '..';
 import { WidgetCard } from '../WidgetBase';
 import { openModal } from '@mantine/modals';
 import { Board, useCurrentBoard } from '@/stores/boardStore';
-import { Type } from '@/types/Message';
+import { Message, SmartDashboardChooser, Type, TypeToTSType } from '@/types/Message';
 import { ConfigureWidgetModal } from './ConfigureWidgetModal';
 
 type Props<K extends keyof typeof WIDGET_NAME_MAP> = {
@@ -18,13 +18,20 @@ const defaultForType: Record<Type, any> = {
 	'float[]': [1.23, 6.28],
 	'int[]': [1, 2, 3],
 	'string[]': ['sussy', 'baka'],
-	boolean: false,
+	boolean: true,
 	double: 3.14159,
 	float: 6.28318,
 	int: 1113,
 	raw: [0, 1, 255, 6, 7, 8],
-	string: 'amogus',
+	string: 'baka',
 };
+
+const defaultMessage = <T extends Type>(type: T): Message<TypeToTSType<T>> => ({
+	data: defaultForType[type],
+	timestamp: 1,
+	topic_name: '',
+	type,
+});
 
 const defaultForOption = (option: Option | null | undefined) => {
 	if (option?.type === 'enum') {
@@ -50,19 +57,23 @@ export const WidgetExample = <K extends keyof typeof WIDGET_NAME_MAP>({
 	const data = Object.fromEntries(
 		Object.entries(widget.sources).map(([sourceName, source]) => {
 			if (source.type === 'topic') {
-				const sourceType = source.types[0] ?? 'int';
-
+				const sourceType: Type = source.types[0] ?? 'int';
+				return [sourceName, defaultMessage(sourceType)];
+			} else if (source.type === 'smartDashboardChooser') {
 				return [
 					sourceName,
 					{
-						topic_name: '',
-						timestamp: 1,
-						type: source.types[0],
-						data: defaultForType[sourceType],
-					},
+						'.controllable': defaultMessage('boolean'),
+						'.instance': defaultMessage('int'),
+						'.name': defaultMessage('string'),
+						'.type': defaultMessage('string'),
+						active: defaultMessage('string'),
+						default: defaultMessage('string'),
+						options: defaultMessage('string[]'),
+					} satisfies SmartDashboardChooser,
 				];
 			}
-			return ['', ''];
+			return [sourceName, defaultMessage('int')];
 		})
 	) as any;
 
@@ -72,9 +83,7 @@ export const WidgetExample = <K extends keyof typeof WIDGET_NAME_MAP>({
 			defaultForOption(option as Option),
 		])
 		// trust me bro, its the correct type 😁
-	) as any;
-
-	console.log(`${name} example`, { data, options });
+	);
 
 	return (
 		<Card p='md' withBorder shadow='md'>
@@ -87,18 +96,21 @@ export const WidgetExample = <K extends keyof typeof WIDGET_NAME_MAP>({
 				<WidgetCard
 					data={data}
 					isDragging
+					example
 					draggable={false}
-					options={options}
+					options={{ example: true, ...options }}
 					widget={{
 						display: name,
 						name: 'Example',
 						sources: {} as any,
 						options,
+						locked: true,
 						height: 100,
 						width: 100,
 						x: 300,
 						y: 300,
 					}}
+					widgetName='Example'
 					zIndex={0}
 				/>
 			</Card.Section>

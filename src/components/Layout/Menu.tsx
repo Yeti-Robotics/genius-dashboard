@@ -9,16 +9,17 @@ import {
 	Stack,
 	TextInput,
 	Button,
+	getStylesRef,
 } from '@mantine/core';
 import { IconPlus, IconReload, IconSettings } from '@tabler/icons-react';
 import { useAllBoards, useBoardActions, useCurrentBoardName } from '@/stores/boardStore';
 import { invokeResult } from '@/utils/invokeResult';
 import { ThemeSwitch } from './ThemeSwitch';
 import { ColorPicker } from './ColorPicker';
-import { closeAllModals, openContextModal, openModal } from '@mantine/modals';
+import { closeAllModals, openModal } from '@mantine/modals';
 
-const useStyles = createStyles((theme, _params, getRef) => {
-	const icon = getRef('icon');
+const useStyles = createStyles((theme, _params) => {
+	const icon = getStylesRef('icon');
 	return {
 		footer: {
 			paddingTop: theme.spacing.md,
@@ -33,9 +34,9 @@ const useStyles = createStyles((theme, _params, getRef) => {
 			display: 'flex',
 			alignItems: 'center',
 			textDecoration: 'none',
-			fontSize: theme.fontSizes.sm,
+			fontSize: theme.fontSizes.md,
 			color: theme.colorScheme === 'dark' ? theme.colors.dark[1] : theme.colors.gray[7],
-			padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
+			padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
 			borderRadius: theme.radius.sm,
 			fontWeight: 500,
 			cursor: 'pointer',
@@ -116,7 +117,8 @@ export const Menu = ({ opened, toggle }: Props) => {
 	const { classes, cx } = useStyles();
 	const { setCurrentBoard } = useBoardActions();
 	const currentBoardName = useCurrentBoardName();
-	const boards = Object.keys(useAllBoards());
+	const allBoards = useAllBoards();
+	const boards = Object.keys(allBoards);
 
 	const links = boards.map((boardName, i) => (
 		<Box
@@ -133,7 +135,7 @@ export const Menu = ({ opened, toggle }: Props) => {
 	));
 
 	return (
-		<Navbar p='md'>
+		<Navbar p='md' h='100%'>
 			<Navbar.Section grow>
 				<Group align='center' pb='md' h={48}>
 					<Burger

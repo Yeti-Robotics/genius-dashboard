@@ -5,6 +5,7 @@ import {
 	Card,
 	Center,
 	Group,
+	Paper,
 	Text,
 	Tooltip,
 	useMantineTheme,
@@ -24,13 +25,15 @@ export const Dashboard = () => {
 		<Box pos='relative' h='100%'>
 			{board.widgets.map((widget, i) => (
 				<WidgetBase
-					key={JSON.stringify(widget.sources)}
+					key={`${board.name}-${widget.display}-${widget.name}-${JSON.stringify(
+						widget.sources
+					)}`}
 					board={board}
-					widget={widget}
+					widgetName={widget.name}
 					zIndex={board.widgets.length + i * -1}
 				/>
 			))}
-			<Card
+			<Paper
 				p='xs'
 				withBorder
 				shadow='lg'
@@ -66,7 +69,7 @@ export const Dashboard = () => {
 						</ActionIcon>
 					</Tooltip>
 				</Group>
-			</Card>
+			</Paper>
 		</Box>
 	);
 };

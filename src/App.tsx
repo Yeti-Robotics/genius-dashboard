@@ -4,7 +4,6 @@ import {
 	DefaultMantineColor,
 	MantineProvider,
 } from '@mantine/core';
-import type { AppProps } from 'next/app';
 import { useLocalStorage } from '@mantine/hooks';
 import { ColorProvider } from '@/components/ColorProvider';
 import { Layout } from '@/components/Layout';
@@ -16,6 +15,8 @@ import { Topic } from '@/types/Topic';
 import { useBoardActions } from '@/stores/boardStore';
 import { useEffect } from 'react';
 import { invokeResult } from '@/utils/invokeResult';
+import { notifications, Notifications } from '@mantine/notifications';
+import { Dashboard } from './components/Dashboard';
 
 const setTopic = getTopicStore().setTopic;
 const setAnnouncedTopic = getTopicStore().setAnnouncedTopic;
@@ -25,8 +26,20 @@ listen<Message>('message', ({ payload }) => {
 	setTopic(payload);
 });
 listen<Topic>('announce', ({ payload }) => setAnnouncedTopic(payload));
+listen('disconnect', () => {
+	notifications.show({
+		title: 'Disconnected from robot! 😭',
+		message: 'This is so sad.',
+	});
+});
+listen('reconnect', () => {
+	notifications.show({
+		title: 'Reconnected to robot! 😁',
+		message: 'This is epic.',
+	});
+});
 
-const App = ({ Component, pageProps }: AppProps) => {
+export const App = () => {
 	const { setBoard, setCurrentBoard } = useBoardActions();
 	const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
 		key: 'colorScheme',
@@ -47,44 +60,26 @@ const App = ({ Component, pageProps }: AppProps) => {
 
 	const startClient = async () => {
 		await invokeResult('start_client', {
-			addr: process.env.NODE_ENV === 'development' ? '127.0.0.1:5810' : '10.35.6.2:5810',
+			addr:
+				process.env.NODE_ENV === 'development'
+					? '127.0.0.1:5810'
+					: '10.35.6.2:5810',
 		});
 	};
 
 	useEffect(() => {
 		startClient();
-		setBoard('My Board', {
-			name: 'My Board',
-			settings: {},
-			widgets: [
-				{
-					display: 'simple',
-					height: 100,
-					width: 100,
-					x: 100,
-					y: 100,
-					name: 'RGB Green Value',
-					sources: { data: '/SmartDashboard/g' },
-					options: { sus: 1 },
-				},
-				{
-					display: 'simple',
-					height: 100,
-					width: 100,
-					x: 200,
-					y: 200,
-					name: 'RGB Red Value',
-					sources: { data: '/SmartDashboard/r' },
-					options: { sus: 1 },
-				},
-			],
-		});
-		setCurrentBoard('My Board');
 	}, []);
 
 	return (
-		<ColorProvider primaryColor={primaryColor} setPrimaryColor={setPrimaryColor}>
-			<ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+		<ColorProvider
+			primaryColor={primaryColor}
+			setPrimaryColor={setPrimaryColor}
+		>
+			<ColorSchemeProvider
+				colorScheme={colorScheme}
+				toggleColorScheme={toggleColorScheme}
+			>
 				<MantineProvider
 					theme={{ colorScheme, primaryColor, cursorType: 'pointer' }}
 					withGlobalStyles
@@ -92,7 +87,8 @@ const App = ({ Component, pageProps }: AppProps) => {
 				>
 					<ModalsProvider>
 						<Layout>
-							<Component {...pageProps} />
+							<Dashboard />
+							<Notifications position='bottom-left' limit={2} />
 						</Layout>
 					</ModalsProvider>
 				</MantineProvider>
@@ -100,5 +96,3 @@ const App = ({ Component, pageProps }: AppProps) => {
 		</ColorProvider>
 	);
 };
-
-export default App;

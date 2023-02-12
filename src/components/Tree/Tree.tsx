@@ -17,9 +17,9 @@ const createBranch = <T extends unknown>(
 	value: MapOrValue<T>,
 	props: Props<T>,
 	nesting = 0,
-	trail: string[] = [],
+	trail: string[] = []
 ) => {
-	if (props.hasChildren(value) && props.filter?.(value)) {
+	if (props.hasChildren(value)) {
 		return (
 			<Accordion.Item sx={{ border: '0' }} ml={nesting * 16} value={key} key={key}>
 				<Accordion.Control
@@ -29,12 +29,14 @@ const createBranch = <T extends unknown>(
 						{key}
 						{props.selectable(value) && (
 							<Button
+								component='div'
+								role='button'
 								onClick={(e) => {
 									e.stopPropagation();
-									props.onSelect(value, trail);
+									props.onSelect(value, [...trail, key]);
 								}}
 							>
-								Use
+								Select
 							</Button>
 						)}
 					</Group>
@@ -48,7 +50,7 @@ const createBranch = <T extends unknown>(
 				</Accordion.Panel>
 			</Accordion.Item>
 		);
-	} else {
+	} else if (!props.filter || props.filter(value)) {
 		return (
 			<Accordion.Item py='md' sx={{ border: 0 }} ml={nesting * 16} value={key} key={key}>
 				<Group grow>
@@ -57,7 +59,9 @@ const createBranch = <T extends unknown>(
 						<Text fw={600}>Type: {isTopic(value) ? value.type : 'Unknown'}</Text>
 					</Stack>
 					{props.selectable(value) && (
-						<Button onClick={() => props.onSelect(value, [...trail, key])}>Use</Button>
+						<Button onClick={() => props.onSelect(value, [...trail, key])}>
+							Select
+						</Button>
 					)}
 				</Group>
 			</Accordion.Item>

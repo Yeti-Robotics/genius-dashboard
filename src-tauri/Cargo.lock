@@ -790,7 +790,6 @@ version = "0.0.0"
 dependencies = [
  "network-tables",
  "once_cell",
- "parking_lot",
  "serde",
  "serde_json",
  "tauri",
@@ -1389,7 +1388,6 @@ dependencies = [
  "tokio",
  "tokio-tungstenite",
  "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]
