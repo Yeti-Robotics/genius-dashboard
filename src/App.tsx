@@ -4,7 +4,7 @@ import {
 	DefaultMantineColor,
 	MantineProvider,
 } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
+import { useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { ColorProvider } from '@/components/ColorProvider';
 import { Layout } from '@/components/Layout';
 import { listen } from '@tauri-apps/api/event';
@@ -66,6 +66,16 @@ export const App = () => {
 					: '10.35.6.2:5810',
 		});
 	};
+
+	useHotkeys([
+		[
+			'mod+r',
+			async () => {
+				await invokeResult('close_client');
+				await startClient();
+			},
+		],
+	]);
 
 	useEffect(() => {
 		startClient();

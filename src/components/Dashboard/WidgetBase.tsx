@@ -168,8 +168,7 @@ export const WidgetCard = ({
 										title: 'Are you sure? 🤔',
 										children: (
 											<Text>
-												Are you sure you want to delete your {widget.name}{' '}
-												modal.
+												Are you sure you want to delete your {widget.name}?
 											</Text>
 										),
 										confirmProps: { color: 'red', children: 'Remove 😈' },

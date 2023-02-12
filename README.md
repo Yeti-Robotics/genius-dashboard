@@ -1,6 +1,6 @@
 # Genius Dashboard
 
-A custom FRC Dashboard build with [Tauri](https://tauri.app), [Next.js](https://nextjs.org), [Mantine](https://mantine.dev), and my own custom [Network Tables v4 implementation](https://github.com/tsar-boomba/network-tables-rs). Designed from the ground up to be efficient, easy-to-use, and bazingly fast 🔥😎.
+A custom FRC Dashboard build with [Tauri](https://tauri.app), [Next.js](https://nextjs.org), [Mantine](https://mantine.dev), and a custom [Network Tables v4 implementation](https://github.com/tsar-boomba/network-tables-rs). Designed from the ground up to be efficient, easy-to-use, and bazingly fast 🔥😎.
 
 ## Development
 

@@ -12,11 +12,16 @@ import {
 	getStylesRef,
 } from '@mantine/core';
 import { IconPlus, IconReload, IconSettings } from '@tabler/icons-react';
-import { useAllBoards, useBoardActions, useCurrentBoardName } from '@/stores/boardStore';
+import {
+	useAllBoards,
+	useBoardActions,
+	useCurrentBoardName,
+} from '@/stores/boardStore';
 import { invokeResult } from '@/utils/invokeResult';
-import { ThemeSwitch } from './ThemeSwitch';
-import { ColorPicker } from './ColorPicker';
+import { ThemeSwitch } from '../ThemeSwitch';
+import { ColorPicker } from '../ColorPicker';
 import { closeAllModals, openModal } from '@mantine/modals';
+import { BoardButton } from './BoardButton';
 
 const useStyles = createStyles((theme, _params) => {
 	const icon = getStylesRef('icon');
@@ -25,7 +30,9 @@ const useStyles = createStyles((theme, _params) => {
 			paddingTop: theme.spacing.md,
 			marginTop: theme.spacing.md,
 			borderTop: `1px solid ${
-				theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]
+				theme.colorScheme === 'dark'
+					? theme.colors.dark[4]
+					: theme.colors.gray[2]
 			}`,
 		},
 
@@ -35,7 +42,10 @@ const useStyles = createStyles((theme, _params) => {
 			alignItems: 'center',
 			textDecoration: 'none',
 			fontSize: theme.fontSizes.md,
-			color: theme.colorScheme === 'dark' ? theme.colors.dark[1] : theme.colors.gray[7],
+			color:
+				theme.colorScheme === 'dark'
+					? theme.colors.dark[1]
+					: theme.colors.gray[7],
 			padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
 			borderRadius: theme.radius.sm,
 			fontWeight: 500,
@@ -43,7 +53,9 @@ const useStyles = createStyles((theme, _params) => {
 
 			'&:hover': {
 				backgroundColor:
-					theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+					theme.colorScheme === 'dark'
+						? theme.colors.dark[6]
+						: theme.colors.gray[0],
 				color: theme.colorScheme === 'dark' ? theme.white : theme.black,
 
 				[`& .${icon}`]: {
@@ -54,17 +66,26 @@ const useStyles = createStyles((theme, _params) => {
 
 		linkIcon: {
 			ref: icon,
-			color: theme.colorScheme === 'dark' ? theme.colors.dark[2] : theme.colors.gray[6],
+			color:
+				theme.colorScheme === 'dark'
+					? theme.colors.dark[2]
+					: theme.colors.gray[6],
 			marginRight: theme.spacing.sm,
 		},
 
 		linkActive: {
 			'&, &:hover': {
-				backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor })
-					.background,
-				color: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).color,
+				backgroundColor: theme.fn.variant({
+					variant: 'light',
+					color: theme.primaryColor,
+				}).background,
+				color: theme.fn.variant({ variant: 'light', color: theme.primaryColor })
+					.color,
 				[`& .${icon}`]: {
-					color: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).color,
+					color: theme.fn.variant({
+						variant: 'light',
+						color: theme.primaryColor,
+					}).color,
 				},
 			},
 		},
@@ -82,31 +103,38 @@ const CreateBoardModal = () => {
 	const boards = useAllBoards();
 	const { setBoard } = useBoardActions();
 
+	const onSubmit = () => {
+		if (!boardName) return setError('Must not be empty');
+		if (error) return;
+		setBoard(boardName, {
+			name: boardName,
+			widgets: [],
+			settings: {},
+		});
+		closeAllModals();
+	};
+
 	return (
 		<Stack>
-			<TextInput
-				label='Board Name'
-				value={boardName}
-				error={error || undefined}
-				onChange={(e) => {
-					if (e.target.value in boards) setError('Name must be unique');
-					setError('');
-					setBoardName(e.target.value);
-				}}
-			/>
-			<Button
-				color={error ? 'red' : undefined}
-				onClick={() => {
-					if (!boardName) return setError('Must not be empty');
-					if (error) return;
-					setBoard(boardName, {
-						name: boardName,
-						widgets: [],
-						settings: {},
-					});
-					closeAllModals();
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					onSubmit();
 				}}
 			>
+				<TextInput
+					label='Board Name'
+					value={boardName}
+					error={error || undefined}
+					data-autofocus
+					onChange={(e) => {
+						if (e.target.value in boards) setError('Name must be unique');
+						setError('');
+						setBoardName(e.target.value);
+					}}
+				/>
+			</form>
+			<Button color={error ? 'red' : undefined} onClick={onSubmit}>
 				Create
 			</Button>
 		</Stack>
@@ -121,17 +149,7 @@ export const Menu = ({ opened, toggle }: Props) => {
 	const boards = Object.keys(allBoards);
 
 	const links = boards.map((boardName, i) => (
-		<Box
-			className={cx(classes.link, { [classes.linkActive]: boardName === currentBoardName })}
-			key={boardName}
-			data-autofocus={i === 0}
-			onClick={(event) => {
-				event.preventDefault();
-				setCurrentBoard(boardName);
-			}}
-		>
-			<span>{boardName}</span>
-		</Box>
+		<BoardButton boardName={boardName} i={i} key={boardName} />
 	));
 
 	return (
@@ -155,7 +173,10 @@ export const Menu = ({ opened, toggle }: Props) => {
 					className={classes.link}
 					onClick={(e) => {
 						e.preventDefault();
-						openModal({ title: 'Create a new board', children: <CreateBoardModal /> });
+						openModal({
+							title: 'Create a new board',
+							children: <CreateBoardModal />,
+						});
 					}}
 				>
 					<IconPlus className={classes.linkIcon} stroke={1.5} />
