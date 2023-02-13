@@ -12,7 +12,6 @@ import { Message } from '@/types/Message';
 import { getTopicStore } from '@/stores/topicsStore';
 import { ModalsProvider } from '@mantine/modals';
 import { Topic } from '@/types/Topic';
-import { useBoardActions } from '@/stores/boardStore';
 import { useEffect } from 'react';
 import { invokeResult } from '@/utils/invokeResult';
 import { notifications, Notifications } from '@mantine/notifications';
@@ -40,7 +39,6 @@ listen('reconnect', () => {
 });
 
 export const App = () => {
-	const { setBoard, setCurrentBoard } = useBoardActions();
 	const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
 		key: 'colorScheme',
 		defaultValue: 'dark',
