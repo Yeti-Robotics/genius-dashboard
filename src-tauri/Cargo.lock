@@ -786,7 +786,7 @@ dependencies = [
 
 [[package]]
 name = "genius-dashboard"
-version = "0.0.0"
+version = "0.0.2"
 dependencies = [
  "network-tables",
  "once_cell",
