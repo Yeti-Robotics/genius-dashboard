@@ -3,6 +3,7 @@
  * @param teamNumber
  * @returns
  */
-export const teamNumberToIP = (teamNumber: string) => {
-	return `10.${teamNumber.slice(0, 2)}.${teamNumber.slice(2, 4)}.2:5810`;
+export const teamNumberToIP = (teamNumber: number) => {
+	const string = Math.floor(teamNumber).toString();
+	return `10.${string.slice(0, 2)}.${string.slice(2, 4).replace(/^0/, '')}.2:5810`;
 };

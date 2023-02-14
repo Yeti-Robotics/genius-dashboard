@@ -3,28 +3,23 @@ import {
 	createStyles,
 	Navbar,
 	Group,
-	Box,
 	Burger,
 	Text,
 	Stack,
 	TextInput,
 	Button,
-	getStylesRef,
+	NavLink,
 } from '@mantine/core';
 import { IconPlus, IconReload, IconSettings } from '@tabler/icons-react';
-import {
-	useAllBoards,
-	useBoardActions,
-	useCurrentBoardName,
-} from '@/stores/boardStore';
+import { useAllBoards, useBoardActions } from '@/stores/boardStore';
 import { invokeResult } from '@/utils/invokeResult';
 import { ThemeSwitch } from '../ThemeSwitch';
 import { ColorPicker } from '../ColorPicker';
 import { closeAllModals, openModal } from '@mantine/modals';
 import { BoardButton } from './BoardButton';
+import { openSettingsModal } from '@/utils/modals';
 
-const useStyles = createStyles((theme, _params) => {
-	const icon = getStylesRef('icon');
+const useStyles = createStyles((theme) => {
 	return {
 		footer: {
 			paddingTop: theme.spacing.md,
@@ -34,60 +29,6 @@ const useStyles = createStyles((theme, _params) => {
 					? theme.colors.dark[4]
 					: theme.colors.gray[2]
 			}`,
-		},
-
-		link: {
-			...theme.fn.focusStyles(),
-			display: 'flex',
-			alignItems: 'center',
-			textDecoration: 'none',
-			fontSize: theme.fontSizes.md,
-			color:
-				theme.colorScheme === 'dark'
-					? theme.colors.dark[1]
-					: theme.colors.gray[7],
-			padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
-			borderRadius: theme.radius.sm,
-			fontWeight: 500,
-			cursor: 'pointer',
-
-			'&:hover': {
-				backgroundColor:
-					theme.colorScheme === 'dark'
-						? theme.colors.dark[6]
-						: theme.colors.gray[0],
-				color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-
-				[`& .${icon}`]: {
-					color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-				},
-			},
-		},
-
-		linkIcon: {
-			ref: icon,
-			color:
-				theme.colorScheme === 'dark'
-					? theme.colors.dark[2]
-					: theme.colors.gray[6],
-			marginRight: theme.spacing.sm,
-		},
-
-		linkActive: {
-			'&, &:hover': {
-				backgroundColor: theme.fn.variant({
-					variant: 'light',
-					color: theme.primaryColor,
-				}).background,
-				color: theme.fn.variant({ variant: 'light', color: theme.primaryColor })
-					.color,
-				[`& .${icon}`]: {
-					color: theme.fn.variant({
-						variant: 'light',
-						color: theme.primaryColor,
-					}).color,
-				},
-			},
 		},
 	};
 });
@@ -142,9 +83,7 @@ const CreateBoardModal = () => {
 };
 
 export const Menu = ({ opened, toggle }: Props) => {
-	const { classes, cx } = useStyles();
-	const { setCurrentBoard } = useBoardActions();
-	const currentBoardName = useCurrentBoardName();
+	const { classes } = useStyles();
 	const allBoards = useAllBoards();
 	const boards = Object.keys(allBoards);
 
@@ -169,8 +108,8 @@ export const Menu = ({ opened, toggle }: Props) => {
 			</Navbar.Section>
 
 			<Navbar.Section className={classes.footer}>
-				<div
-					className={classes.link}
+				<NavLink
+					label='Create a board'
 					onClick={(e) => {
 						e.preventDefault();
 						openModal({
@@ -178,12 +117,10 @@ export const Menu = ({ opened, toggle }: Props) => {
 							children: <CreateBoardModal />,
 						});
 					}}
-				>
-					<IconPlus className={classes.linkIcon} stroke={1.5} />
-					<span>Create a board</span>
-				</div>
-				<div
-					className={classes.link}
+					icon={<IconPlus stroke={1.5} />}
+				/>
+				<NavLink
+					label='Reconnect To Robot'
 					onClick={async (e) => {
 						e.preventDefault();
 						const addr =
@@ -200,14 +137,16 @@ export const Menu = ({ opened, toggle }: Props) => {
 									: '10.35.6.2:5810',
 						});
 					}}
-				>
-					<IconReload className={classes.linkIcon} stroke={1.5} />
-					<span>Reconnect to Robot</span>
-				</div>
-				<div className={classes.link} onClick={(e) => e.preventDefault()}>
-					<IconSettings className={classes.linkIcon} stroke={1.5} />
-					<span>Settings</span>
-				</div>
+					icon={<IconReload stroke={1.5} />}
+				/>
+				<NavLink
+					label='Settings'
+					onClick={(e) => {
+						e.preventDefault();
+						openSettingsModal();
+					}}
+					icon={<IconSettings stroke={1.5} />}
+				/>
 				<Group mt='md' position='center'>
 					<ThemeSwitch /> <ColorPicker />
 				</Group>

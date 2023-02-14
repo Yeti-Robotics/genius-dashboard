@@ -66,7 +66,7 @@ export const ColorPicker = () => {
 			<Popover opened={opened} position='bottom' withArrow withinPortal>
 				<Popover.Target>
 					<ActionIcon className={classes.menuButton} onClick={() => toggleOpened()}>
-						<IconDroplet color='white' />
+						<IconDroplet stroke={1.5} color='white' />
 					</ActionIcon>
 				</Popover.Target>
 

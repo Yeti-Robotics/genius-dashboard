@@ -3,15 +3,33 @@
     windows_subsystem = "windows"
 )]
 
+mod log;
+
 use std::{collections::HashMap, net::SocketAddr, str::FromStr};
 
 use network_tables::v4::{Config, PublishedTopic, SubscriptionOptions, Type};
 use once_cell::sync::OnceCell;
+use serde::Deserialize;
 use tauri::{Manager, Window};
 use tokio::sync::Mutex;
 
 static CLIENT: OnceCell<Mutex<Option<network_tables::v4::Client>>> = OnceCell::new();
 static PUBLISHED_TOPICS: OnceCell<Mutex<HashMap<String, PublishedTopic>>> = OnceCell::new();
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum LogType {
+    Log,
+    Info,
+    Warn,
+    Error,
+}
+
+#[derive(Debug, Deserialize)]
+struct LogEvent {
+    log_type: LogType,
+    message: String,
+}
 
 async fn create_new_client(
     window: &Window,
@@ -23,6 +41,7 @@ async fn create_new_client(
     let new_client = network_tables::v4::Client::try_new_w_config(
         addr,
         Config {
+            connect_timeout: 3000,
             on_announce: Box::new(move |announced_topics| {
                 on_announce_window.emit("announce", announced_topics).ok();
             }),
@@ -155,6 +174,22 @@ fn main() {
                 window.open_devtools();
                 window.close_devtools();
             }
+
+            // Listen for logs from the frontend
+            app.listen_global("log", |e| {
+                let payload = serde_json::from_str::<LogEvent>(e.payload().unwrap()).unwrap();
+
+                match payload.log_type {
+                    LogType::Log => tracing::info!(payload.message),
+                    LogType::Info => tracing::info!(payload.message),
+                    LogType::Warn => tracing::warn!(payload.message),
+                    LogType::Error => tracing::error!(payload.message),
+                }
+            });
+
+            // Set up a subscriber to write events to the log file
+            let _ = log::init_logger(app);
+
             Ok(())
         })
         .run(tauri::generate_context!())

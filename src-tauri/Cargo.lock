@@ -794,7 +794,11 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
+ "time",
  "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "walkdir",
 ]
 
 [[package]]
@@ -1374,9 +1378,9 @@ dependencies = [
 
 [[package]]
 name = "network-tables"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a16c2684eb67433df39109e63c87a83dd8a5bc789b9ef06e00a1e8ca01a00f3a"
+checksum = "797191d759551803329837d92b485503edcb750bb82f21a058b92b446cf0ece4"
 dependencies = [
  "futures-util",
  "parking_lot",
@@ -1473,6 +1477,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "num_threads"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2819ce041d2ee131036f4fc9d6ae7ae125a3a40e97ba64d04fe799ad9dabbb44"
+dependencies = [
+ "libc",
 ]
 
 [[package]]
@@ -2683,6 +2696,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a561bf4617eebd33bca6434b988f39ed798e527f51a1e797d0ee4f61c0a38376"
 dependencies = [
  "itoa 1.0.5",
+ "libc",
+ "num_threads",
  "serde",
  "time-core",
  "time-macros",
@@ -2822,10 +2837,12 @@ dependencies = [
  "matchers",
  "nu-ansi-term",
  "once_cell",
+ "parking_lot",
  "regex",
  "sharded-slab",
  "smallvec",
  "thread_local",
+ "time",
  "tracing",
  "tracing-core",
  "tracing-log",

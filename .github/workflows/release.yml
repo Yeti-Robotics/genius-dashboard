@@ -48,4 +48,4 @@ jobs:
           releaseName: 'Genius Dashboard v__VERSION__' # tauri-action replaces __VERSION__ with the app version.
           releaseBody: 'See the assets to download and install this version.'
           releaseDraft: true
-          prerelease: ${{ includes(github.ref_name, 'alpha') }}
+          prerelease: ${{ contains(github.ref_name, 'alpha') }}

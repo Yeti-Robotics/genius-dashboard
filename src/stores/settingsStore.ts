@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-type TopicStore = {
+type SettingsStore = {
 	teamNumber: number;
-	serverAddr: string;
+	serverAddr: (string & {}) | 'real' | 'sim';
 	actions: Actions;
 };
 
@@ -12,7 +12,7 @@ type Actions = {
 	setServerAddr: (newServerAddr: string) => void;
 };
 
-const useSettingsStore = create<TopicStore>()(
+const useSettingsStore = create<SettingsStore>()(
 	persist(
 		(set) => ({
 			teamNumber: 0,
@@ -39,6 +39,9 @@ const useSettingsStore = create<TopicStore>()(
 		}
 	)
 );
+
+/** For use outside of react code, notably starting the client */
+export const getSettings = () => useSettingsStore.getState();
 
 export const useTeamNumber = () =>
 	useSettingsStore((state) => state.teamNumber);

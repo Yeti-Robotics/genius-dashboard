@@ -13,9 +13,9 @@ import { getTopicStore } from '@/stores/topicsStore';
 import { ModalsProvider } from '@mantine/modals';
 import { Topic } from '@/types/Topic';
 import { useEffect } from 'react';
-import { invokeResult } from '@/utils/invokeResult';
 import { notifications, Notifications } from '@mantine/notifications';
 import { Dashboard } from './components/Dashboard';
+import { startClient } from './utils/client';
 
 const setTopic = getTopicStore().setTopic;
 const setAnnouncedTopic = getTopicStore().setAnnouncedTopic;
@@ -56,24 +56,7 @@ export const App = () => {
 		_setPrimaryColor(color);
 	};
 
-	const startClient = async () => {
-		await invokeResult('start_client', {
-			addr:
-				process.env.NODE_ENV === 'development'
-					? '127.0.0.1:5810'
-					: '10.35.6.2:5810',
-		});
-	};
-
-	useHotkeys([
-		[
-			'mod+r',
-			async () => {
-				await invokeResult('close_client');
-				await startClient();
-			},
-		],
-	]);
+	useHotkeys([['mod+r', startClient]]);
 
 	useEffect(() => {
 		startClient();

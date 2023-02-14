@@ -16,6 +16,12 @@
 			"shell": {
 				"all": false,
 				"open": true
+			},
+			"fs": {
+				"all": false,
+				"readFile": true,
+				"exists": true,
+				"writeFile": true
 			}
 		},
 		"bundle": {
