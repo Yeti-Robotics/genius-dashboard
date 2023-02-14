@@ -2,6 +2,10 @@
 
 A custom FRC Dashboard build with [Tauri](https://tauri.app), [Next.js](https://nextjs.org), [Mantine](https://mantine.dev), and a custom [Network Tables v4 implementation](https://github.com/tsar-boomba/network-tables-rs). Designed from the ground up to be efficient, easy-to-use, and bazingly fast 🔥😎.
 
+## Download
+
+You can download Genius Dashboard from the releases section in the repository.
+
 ## Development
 
 Make sure you have, [Node.js](https://nodejs.org), [Pnpm](https://pnpm.io), and [Rust](https://rust-lang.org/tools/install) installed, then run `pnpm i`, followed by `pnpm tauri dev` to get started making changes.
