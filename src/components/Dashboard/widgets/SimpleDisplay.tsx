@@ -4,12 +4,9 @@ import { WidgetComponent } from '..';
 import { Type } from '@/types/Message';
 
 export const SimpleDisplay: WidgetComponent<
-	{ data: { type: 'topic'; types: Type[]; description: string; required: true } },
-	{
-		sus: { type: 'int'; default: number; description: string; required: true };
-	}
+	{ data: { type: 'topic'; types: Type[]; description: string; required: true } }
 > = {
-	Component: ({ data, options }) => {
+	Component: ({ data }) => {
 		if (!data.data)
 			return (
 				<Center>
@@ -54,12 +51,5 @@ export const SimpleDisplay: WidgetComponent<
 			description: 'Data to display',
 		},
 	},
-	options: {
-		sus: {
-			type: 'int',
-			default: 1,
-			required: true,
-			description: 'change the thing this widget does',
-		},
-	},
+	options: {},
 };

@@ -12,12 +12,12 @@ import {
 } from '@mantine/core';
 import { IconPlus, IconReload, IconSettings } from '@tabler/icons-react';
 import { useAllBoards, useBoardActions } from '@/stores/boardStore';
-import { invokeResult } from '@/utils/invokeResult';
 import { ThemeSwitch } from '../ThemeSwitch';
 import { ColorPicker } from '../ColorPicker';
 import { closeAllModals, openModal } from '@mantine/modals';
 import { BoardButton } from './BoardButton';
 import { openSettingsModal } from '@/utils/modals';
+import { startClient } from '@/utils/client';
 
 const useStyles = createStyles((theme) => {
 	return {
@@ -123,19 +123,7 @@ export const Menu = ({ opened, toggle }: Props) => {
 					label='Reconnect To Robot'
 					onClick={async (e) => {
 						e.preventDefault();
-						const addr =
-							process.env.NODE_ENV === 'development'
-								? '127.0.0.1:5810'
-								: '10.35.6.2:5810';
-						await invokeResult('close_client', {
-							addr,
-						});
-						await invokeResult('start_client', {
-							addr:
-								process.env.NODE_ENV === 'development'
-									? '127.0.0.1:5810'
-									: '10.35.6.2:5810',
-						});
+						await startClient();
 					}}
 					icon={<IconReload stroke={1.5} />}
 				/>

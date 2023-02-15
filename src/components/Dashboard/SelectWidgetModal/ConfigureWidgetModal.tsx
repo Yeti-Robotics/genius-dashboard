@@ -5,7 +5,7 @@ import { OptionsForm } from '../OptionsForm';
 import { useForm } from 'react-hook-form';
 import { SourcesForm } from '../SourcesForm';
 import { closeAllModals } from '@mantine/modals';
-import { Board, useBoardActions, useCurrentBoard } from '@/stores/boardStore';
+import { Board, useBoardActions } from '@/stores/boardStore';
 
 type Props<K extends keyof typeof WIDGET_NAME_MAP> = {
 	name: K;
@@ -74,6 +74,7 @@ export const ConfigureWidgetModal = <K extends keyof typeof WIDGET_NAME_MAP>({
 				disabled={submitting}
 				loading={submitting}
 				onClick={async () => {
+					if (displayName === '') return;
 					setSubmitting(true);
 					const optionsValid = await trigger();
 					if (!optionsValid || !sourcesFilled) return setSubmitting(false);
