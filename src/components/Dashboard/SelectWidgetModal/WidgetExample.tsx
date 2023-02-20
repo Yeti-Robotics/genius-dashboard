@@ -3,7 +3,12 @@ import { Option, WIDGET_NAME_MAP } from '..';
 import { WidgetCard } from '../WidgetBase';
 import { openModal } from '@mantine/modals';
 import { Board, useCurrentBoard } from '@/stores/boardStore';
-import { Message, SmartDashboardChooser, Type, TypeToTSType } from '@/types/Message';
+import {
+	Message,
+	SmartDashboardChooser,
+	Type,
+	TypeToTSType,
+} from '@/types/Message';
 import { ConfigureWidgetModal } from './ConfigureWidgetModal';
 
 type Props<K extends keyof typeof WIDGET_NAME_MAP> = {
@@ -72,6 +77,18 @@ export const WidgetExample = <K extends keyof typeof WIDGET_NAME_MAP>({
 						options: defaultMessage('string[]'),
 					} satisfies SmartDashboardChooser,
 				];
+			} else if (source.type === 'camera') {
+				return [
+					sourceName,
+					{
+						connected: defaultMessage('boolean'),
+						description: defaultMessage('int'),
+						mode: defaultMessage('string'),
+						modes: defaultMessage('string[]'),
+						source: defaultMessage('string'),
+						streams: defaultMessage('string[]'),
+					},
+				];
 			}
 			return [sourceName, defaultMessage('int')];
 		})
@@ -121,7 +138,11 @@ export const WidgetExample = <K extends keyof typeof WIDGET_NAME_MAP>({
 						openModal({
 							title: `Add ${name} widget to ${currentBoard?.name}`,
 							children: (
-								<ConfigureWidgetModal name={name} widget={widget} board={board} />
+								<ConfigureWidgetModal
+									name={name}
+									widget={widget}
+									board={board}
+								/>
 							),
 						})
 					}

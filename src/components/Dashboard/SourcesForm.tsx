@@ -1,19 +1,11 @@
 import { useAnnouncedTopics } from '@/stores/topicsStore';
 import { Topic } from '@/types/Topic';
 import { MapOrValue } from '@/types/utils';
-import { Button, Card, Collapse, Group, Stack, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { closeModal, openModal } from '@mantine/modals';
-import {
-	createContext,
-	Dispatch,
-	SetStateAction,
-	useEffect,
-	useState,
-} from 'react';
+import { Button, Card, Collapse, Stack, Text } from '@mantine/core';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { Source } from '.';
 import { Tree } from '../Tree';
-import { isSmartDashboardChooser, isTopic } from './assertions';
+import { isCamera, isSmartDashboardChooser, isTopic } from './assertions';
 
 type Props = {
 	sourcesDefinitions: Record<string, Source>;
@@ -81,15 +73,13 @@ const SelectSource = ({
 								setSources((prev) => ({ ...prev, [name]: selectable.name }));
 								setSelected(selectable.name);
 							}
-						} else if (sourceDef.type === 'smartDashboardChooser') {
-							if (isSmartDashboardChooser(selectable, isTopic)) {
-								const topic = `/${trail.join('/')}`;
-								setSources((prev) => ({
-									...prev,
-									[name]: `/${trail.join('/')}`,
-								}));
-								setSelected(topic);
-							}
+						} else {
+							const topic = `/${trail.join('/')}`;
+							setSources((prev) => ({
+								...prev,
+								[name]: `/${trail.join('/')}`,
+							}));
+							setSelected(topic);
 						}
 
 						// Success close this tree
@@ -100,6 +90,8 @@ const SelectSource = ({
 							return isTopic(sub);
 						} else if (sourceDef.type === 'smartDashboardChooser') {
 							return isSmartDashboardChooser(sub, isTopic);
+						} else if (sourceDef.type === 'camera') {
+							return isCamera(sub, isTopic);
 						} else return true;
 					}}
 					filter={(sub) => {
@@ -110,6 +102,8 @@ const SelectSource = ({
 							return (
 								(!isTopic(sub) && isSmartDashboardChooser(sub, isTopic)) || true
 							);
+						} else if (sourceDef.type === 'camera') {
+							return (!isTopic(sub) && isCamera(sub, isTopic)) || true;
 						} else return true;
 					}}
 				/>

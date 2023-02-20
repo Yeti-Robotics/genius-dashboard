@@ -60,3 +60,12 @@ export type SmartDashboardChooser = {
 	default: Message<string>;
 	options: Message<string[]>;
 };
+
+export type Camera = {
+	connected: Message<boolean>;
+	description: Message<string>;
+	mode: Message<string>;
+	modes: Message<string[]>;
+	source: Message<string>;
+	streams: Message<string[]>;
+};

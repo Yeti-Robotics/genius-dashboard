@@ -1,16 +1,9 @@
-import {
-	Board,
-	useBoard,
-	useBoardActions,
-	useCurrentBoard,
-	useWidget,
-	Widget,
-} from '@/stores/boardStore';
+import { useBoard, useBoardActions, useWidget } from '@/stores/boardStore';
 import { Button, Center, Stack, Text, TextInput, Title } from '@mantine/core';
-import { useValidatedState } from '@mantine/hooks';
-import { useEffect, useState } from 'react';
+import { useShallowEffect, useValidatedState } from '@mantine/hooks';
 import { useForm } from 'react-hook-form';
 import { Option, Source, WidgetComponent, WIDGET_NAME_MAP } from '.';
+import { getOptionErrors } from './assertions';
 import { OptionsForm } from './OptionsForm';
 import { SourcesForm } from './SourcesForm';
 
@@ -37,10 +30,27 @@ export const EditWidgetModal = ({
 		setName,
 	] = useValidatedState(widgetName, validateName);
 	const widget = useWidget(board.name, lastValidName);
-	const { control, register } = useForm({
+	const { control, register, watch, setError, clearErrors } = useForm({
 		defaultValues: widget?.options ?? {},
 	});
 	const { setWidget } = useBoardActions();
+	const formValues = watch();
+	const hasOptions = Object.keys(component.options).length > 0;
+
+	useShallowEffect(() => {
+		if (hasOptions) {
+			const errors = getOptionErrors(formValues, component.options);
+			const isErrors = Object.values(errors).some((v) => v !== undefined);
+			if (isErrors) {
+				Object.entries(errors).forEach(([name, error]) =>
+					error ? setError(name, { message: error }) : clearErrors(name)
+				);
+			} else {
+				clearErrors();
+				setWidget(boardName, lastValidName, { options: formValues });
+			}
+		}
+	}, [formValues]);
 
 	if (!widget)
 		return (
@@ -71,7 +81,7 @@ export const EditWidgetModal = ({
 			>
 				Reset To Original
 			</Button>
-			{Object.keys(widget.options).length > 0 && (
+			{hasOptions && (
 				<>
 					<Title order={1}>Options</Title>
 					<OptionsForm
@@ -81,7 +91,7 @@ export const EditWidgetModal = ({
 					/>
 				</>
 			)}
-			{Object.keys(widget.sources).length > 0 && (
+			{Object.keys(component.sources).length > 0 && (
 				<>
 					<Title order={1}>Sources</Title>
 					<SourcesForm

@@ -3,6 +3,7 @@ import { SimpleDisplay } from './widgets/SimpleDisplay';
 import { Message, Type } from '@/types/Message';
 import { SmartDashboardChooser } from './widgets/SmartDashboardChooser';
 import { Toggle } from './widgets/Toggle';
+import { Camera } from './widgets/Camera';
 
 export { Dashboard } from './Dashboard';
 
@@ -15,20 +16,23 @@ type CreateOption<T extends { type: string }> = T & {
 export type Option =
 	| CreateOption<{
 			type: 'int';
+			min?: number;
+			max?: number;
 	  }>
-	| CreateOption<{ type: 'float' }>
+	| CreateOption<{ type: 'float'; min?: number; max?: number }>
 	| CreateOption<{ type: 'string' }>
 	| CreateOption<{ type: 'enum'; options: string[] }>;
 
-export type OptionDefToType<O extends { type: string }> = 'int' extends O['type']
-	? number
-	: 'float' extends O['type']
-	? number
-	: 'string' extends O['type']
-	? string
-	: 'enum' extends O['type']
-	? string
-	: never;
+export type OptionDefToType<O extends { type: string }> =
+	'int' extends O['type']
+		? number
+		: 'float' extends O['type']
+		? number
+		: 'string' extends O['type']
+		? string
+		: 'enum' extends O['type']
+		? string
+		: never;
 
 type CreateSource<T extends { type: string }> = T & {
 	description: string;
@@ -40,7 +44,8 @@ export type Source =
 			type: 'topic';
 			types: Type[];
 	  }>
-	| CreateSource<{ type: 'smartDashboardChooser' }>;
+	| CreateSource<{ type: 'smartDashboardChooser' }>
+	| CreateSource<{ type: 'camera' }>;
 
 export type WidgetComponent<
 	S extends { [key: string]: Source } = {},
@@ -67,4 +72,5 @@ export const WIDGET_NAME_MAP: Record<
 	simple: SimpleDisplay as any,
 	smartDashboardChooser: SmartDashboardChooser as any,
 	toggle: Toggle as any,
+	camera: Camera as any,
 };
