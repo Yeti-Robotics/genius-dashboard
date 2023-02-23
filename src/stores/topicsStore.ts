@@ -1,8 +1,12 @@
 import { isTopic } from '@/components/Dashboard/assertions';
-import { Message, MessageType, Type } from '@/types/Message';
+import { Message, MessageType } from '@/types/Message';
 import { Topic } from '@/types/Topic';
 import { MapOrValue } from '@/types/utils';
-import { getTopicFromName, publishValue, setTopicFromName } from '@/utils/topicUtils';
+import {
+	getTopicFromName,
+	publishValue,
+	setTopicFromName,
+} from '@/utils/topicUtils';
 import { create } from 'zustand';
 import { shallow } from 'zustand/shallow';
 
@@ -18,13 +22,17 @@ const useTopicStore = create<TopicStore>((set) => ({
 	announcedTopics: {},
 	setTopic: (message) => {
 		set(({ topicData }) => ({
-			topicData: { ...setTopicFromName(message.topic_name, message, topicData) },
+			topicData: {
+				...setTopicFromName(message.topic_name, message, topicData),
+			},
 		}));
 	},
 	setAnnouncedTopic: (topic) =>
 		set(({ announcedTopics }) => {
 			return {
-				announcedTopics: { ...setTopicFromName(topic.name, topic, announcedTopics) },
+				announcedTopics: {
+					...setTopicFromName(topic.name, topic, announcedTopics),
+				},
 			};
 		}),
 }));
@@ -75,14 +83,30 @@ export const usePublishValue = (topic: string) => {
 	const setTopic = useTopicStore((state) => state.setTopic);
 	const { topicDef } = useTopic({ topicDef: topic });
 	return (newValue: MessageType) => {
-		if (!isTopic(topicDef)) throw new Error('`usePublishValue` topic must not have children.');
+		if (!isTopic(topicDef))
+			throw new Error('`usePublishValue` topic must not have children.');
 
+		const prevData = getTopicFromName(
+			topic,
+			useTopicStore.getState().topicData
+		) as Message;
 		publishValue({
 			topic,
 			topicType: topicDef.type,
 			value: newValue,
+		}).then((res) => {
+			if (!res.isOk()) {
+				console.error(res);
+				setTopic(prevData);
+			}
 		});
-		// This will cause rerender 👍
-		setTopic({ topic_name: topic, data: newValue, timestamp: 1, type: topicDef.type });
+
+		// This will cause rerender 👍, optimistic update
+		setTopic({
+			topic_name: topic,
+			data: newValue,
+			timestamp: prevData.timestamp + 1,
+			type: topicDef.type,
+		});
 	};
 };

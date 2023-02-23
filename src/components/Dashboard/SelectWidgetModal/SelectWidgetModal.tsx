@@ -10,9 +10,11 @@ type Props = {
 export const SelectWidgetModal = ({ board }: Props) => {
 	return (
 		<Stack>
-			{Object.entries({ ...WIDGET_NAME_MAP }).map(([name, widget]) => (
-				<WidgetExample name={name} widget={widget} board={board} key={name} />
-			))}
+			{Object.entries({ ...WIDGET_NAME_MAP })
+				.filter(([, widget]) => !widget.deprecated)
+				.map(([name, widget]) => (
+					<WidgetExample name={name} widget={widget} board={board} key={name} />
+				))}
 		</Stack>
 	);
 };

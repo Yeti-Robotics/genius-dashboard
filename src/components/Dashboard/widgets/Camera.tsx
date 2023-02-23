@@ -1,6 +1,9 @@
 import { isCamera, isMessage } from '../assertions';
 import { Center, Paper, Text } from '@mantine/core';
 import { WidgetComponent } from '..';
+import { useServerAddr } from '@/stores/settingsStore';
+
+const portRegex = /:(\d{1,5})/;
 
 export const Camera: WidgetComponent<
 	{
@@ -18,6 +21,7 @@ export const Camera: WidgetComponent<
 	}
 > = {
 	Component: ({ data, options }) => {
+		const serverAddr = useServerAddr();
 		const isExample = 'example' in options;
 
 		if (isExample)
@@ -43,17 +47,18 @@ export const Camera: WidgetComponent<
 
 		let src = data.data.streams.data[0];
 
-		// @ts-expect-error no .d.ts for vite vars 💀
-		if (import.meta.env.TAURI_DEBUG) {
-			src = 'http://127.0.0.1:1181/?action=stream';
-		}
-
 		if (!src)
 			return (
 				<Center>
 					<Text>No source found.</Text>
 				</Center>
 			);
+
+		const port = portRegex.exec(src)?.[1] ?? '80';
+
+		if (serverAddr === 'sim') {
+			src = `http://127.0.0.1:${port}/?action=stream`;
+		}
 
 		return (
 			<Center p='md'>

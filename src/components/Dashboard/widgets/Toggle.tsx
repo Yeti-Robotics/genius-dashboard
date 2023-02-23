@@ -1,5 +1,5 @@
 import { isMessage } from '../assertions';
-import { Center, Switch, Text } from '@mantine/core';
+import { Stack, Switch, Text } from '@mantine/core';
 import { WidgetComponent } from '..';
 import { Type } from '@/types/Message';
 import { usePublishValue } from '@/stores/topicsStore';
@@ -13,27 +13,36 @@ export const Toggle: WidgetComponent<{
 
 		if (!data.data)
 			return (
-				<Center>
+				<Stack>
 					<Text>Waiting on data...</Text>
-				</Center>
+					<Text size='sm'>
+						This widget is deprecated, use editable instead.
+					</Text>
+				</Stack>
 			);
 
 		if (!isMessage(data.data))
 			return (
-				<Center>
-					<Text>Topic must be standalone (not a chooser, etc.)</Text>
-				</Center>
+				<Stack>
+					<Text>Topic must be standalone (not a chooser, etc.)</Text>{' '}
+					<Text size='sm'>
+						This widget is deprecated, use editable instead.
+					</Text>
+				</Stack>
 			);
 
 		if (data.data.type !== 'boolean')
 			return (
-				<Center>
-					<Text>Topic type must be `boolean`</Text>
-				</Center>
+				<Stack>
+					<Text>Topic type must be `boolean`</Text>{' '}
+					<Text size='sm'>
+						This widget is deprecated, use editable instead.
+					</Text>
+				</Stack>
 			);
 
 		return (
-			<Center>
+			<Stack>
 				<Switch
 					checked={data.data.data as boolean}
 					onChange={async (e) => {
@@ -41,8 +50,9 @@ export const Toggle: WidgetComponent<{
 						if (isExample || !isMessage(data.data)) return;
 						setChecked(e.target.checked);
 					}}
-				/>
-			</Center>
+				/>{' '}
+				<Text size='sm'>This widget is deprecated, use editable instead.</Text>
+			</Stack>
 		);
 	},
 	description: 'Display a toggle for a boolean.',
@@ -55,4 +65,5 @@ export const Toggle: WidgetComponent<{
 		},
 	},
 	options: {},
+	deprecated: true,
 };

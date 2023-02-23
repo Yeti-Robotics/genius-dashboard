@@ -4,6 +4,7 @@ import { Message, Type } from '@/types/Message';
 import { SmartDashboardChooser } from './widgets/SmartDashboardChooser';
 import { Toggle } from './widgets/Toggle';
 import { Camera } from './widgets/Camera';
+import { Editable } from './widgets/Editable';
 
 export { Dashboard } from './Dashboard';
 
@@ -59,6 +60,7 @@ export type WidgetComponent<
 	description: string;
 	sources: S;
 	options: O;
+	deprecated?: boolean;
 };
 
 export const WIDGET_NAME_MAP: Record<
@@ -70,6 +72,7 @@ export const WIDGET_NAME_MAP: Record<
 	of any WidgetComponent
 	*/
 	simple: SimpleDisplay as any,
+	editable: Editable as any,
 	smartDashboardChooser: SmartDashboardChooser as any,
 	toggle: Toggle as any,
 	camera: Camera as any,

@@ -61,4 +61,8 @@ export class Result<T, E> {
 		}
 		return errFn(this.internal.err);
 	}
+
+	isOk(): boolean {
+		return 'ok' in this.internal;
+	}
 }

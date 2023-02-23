@@ -44,7 +44,7 @@ export const getTopicFromName = <T extends object>(
 	name: string,
 	o: MapOrValue<T>
 ): MapOrValue<T> | undefined => {
-	const topics = name.slice(1).split('/');
+	const topics = name?.slice(1).split('/') ?? [];
 	let nestLevel = o;
 
 	for (let i = 0; i < topics.length; i += 1) {
