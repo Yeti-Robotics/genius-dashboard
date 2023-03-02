@@ -1,14 +1,32 @@
-import { isCamera, isCommand, isMessage } from '../assertions';
-import { Center, Paper, Stack, Text } from '@mantine/core';
+import { isCommand, isMessage } from '../assertions';
+import { Button, Center, Paper, Stack, Text } from '@mantine/core';
 import { WidgetComponent } from '..';
+import { usePublishValue } from '@/stores/topicsStore';
+import { useEffect, useState } from 'react';
+import { Command as CommandMessage } from '@/types/Message';
 
-export const Command: WidgetComponent<
-	{
-		command: { type: 'command'; description: string; required: true };
-	}
-> = {
-	Component: ({ data, options }) => {
+const baseKeys: string[] = [
+	'.controllable',
+	'.isParented',
+	'.name',
+	'.type',
+	'interruptBehavior',
+	'running',
+	'runsWhenDisabled',
+];
+
+export const Command: WidgetComponent<{
+	command: { type: 'command'; description: string; required: true };
+}> = {
+	Component: ({ data, options, sources }) => {
+		const [updatingRunning, setUpdatingRunning] = useState(false);
+		const publishRunning = usePublishValue(sources.command + '/running');
 		const isExample = 'example' in options;
+
+		useEffect(() => {
+			// If running changes, set updating to false
+			setUpdatingRunning(false);
+		}, [(data.command as CommandMessage)?.running?.data]);
 
 		if (isExample)
 			return (
@@ -31,9 +49,28 @@ export const Command: WidgetComponent<
 				</Center>
 			);
 
+		const isRunning = data.command.running.data;
+		const controllable = data.command['.controllable'].data;
+
+		const extraProps = Object.entries(data.command)
+			.filter(([name]) => !baseKeys.includes(name))
+			.map(([name, message]) => {
+				// TODO: this
+			});
+
 		return (
 			<Stack>
-				<div></div>
+				{controllable && (
+					<Button
+						loading={updatingRunning}
+						onClick={() => {
+							setUpdatingRunning(true);
+							publishRunning(!isRunning);
+						}}
+					>
+						{isRunning ? 'Unschedule' : 'Schedule'}
+					</Button>
+				)}
 			</Stack>
 		);
 	},

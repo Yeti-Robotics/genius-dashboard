@@ -1,4 +1,4 @@
-import { Camera, Message, SmartDashboardChooser, Type } from '@/types/Message';
+import { Camera, Command, Message, SmartDashboardChooser, Type } from '@/types/Message';
 import { Topic } from '@/types/Topic';
 import { Option } from '.';
 
@@ -62,7 +62,7 @@ export const isCamera = (
 export const isCommand = (
 	o: unknown,
 	isKeyType: (o: unknown, allowedTypes?: Type[]) => boolean
-): o is Camera => {
+): o is Command => {
 	if (o === undefined || o === null) return false;
 	if (isKeyType(o)) return false;
 	if (!(typeof o === 'object')) return false;
