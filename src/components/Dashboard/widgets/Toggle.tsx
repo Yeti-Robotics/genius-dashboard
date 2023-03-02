@@ -46,7 +46,6 @@ export const Toggle: WidgetComponent<{
 				<Switch
 					checked={data.data.data as boolean}
 					onChange={async (e) => {
-						console.log(sources.data);
 						if (isExample || !isMessage(data.data)) return;
 						setChecked(e.target.checked);
 					}}

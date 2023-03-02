@@ -89,6 +89,19 @@ export const WidgetExample = <K extends keyof typeof WIDGET_NAME_MAP>({
 						streams: defaultMessage('string[]'),
 					},
 				];
+			} else if (source.type === 'command') {
+				return [
+					sourceName,
+					{
+						'.controllable': defaultMessage('boolean'),
+						'.isParented': defaultMessage('boolean'),
+						'.name': defaultMessage('string'),
+						'.type': defaultMessage('string'),
+						interruptBehavior: defaultMessage('string'),
+						running: defaultMessage('boolean'),
+						runsWhenDisabled: defaultMessage('boolean'),
+					},
+				];
 			}
 			return [sourceName, defaultMessage('int')];
 		})

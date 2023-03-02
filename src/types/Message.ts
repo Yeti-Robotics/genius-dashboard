@@ -1,3 +1,5 @@
+import { MapOrValue } from "./utils";
+
 export type Type =
 	| 'boolean'
 	| 'double'
@@ -68,4 +70,15 @@ export type Camera = {
 	modes: Message<string[]>;
 	source: Message<string>;
 	streams: Message<string[]>;
+};
+
+export type Command = {
+	['.controllable']: Message<boolean>;
+	['.isParented']: Message<boolean>;
+	['.name']: Message<string>;
+	['.type']: Message<string>;
+	interruptBehavior: Message<string>;
+	running: Message<boolean>;
+	runsWhenDisabled: Message<boolean>;
+	[key: string]: MapOrValue<Message>;
 };

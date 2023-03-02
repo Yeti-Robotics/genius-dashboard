@@ -11,10 +11,18 @@ const paramsToMessage = (message: unknown, ...params: unknown[]) =>
 			? 'undefined'
 			: message === null
 			? 'null'
+			: typeof message === 'object'
+			? JSON.stringify(message)
 			: message.toString()
 	} ${params
 		.map((p) =>
-			p === undefined ? 'undefined' : p === null ? 'null' : p.toString()
+			p === undefined
+				? 'undefined'
+				: p === null
+				? 'null'
+				: typeof p === 'object'
+				? JSON.stringify(p)
+				: p.toString()
 		)
 		.join(' ')}`;
 
@@ -56,4 +64,4 @@ const setupConsole = () => {
 	};
 };
 
-setupConsole();
+if (!import.meta.env.TAURI_DEBUG) setupConsole();

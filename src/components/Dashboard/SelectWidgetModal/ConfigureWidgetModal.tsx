@@ -94,7 +94,7 @@ export const ConfigureWidgetModal = <K extends keyof typeof WIDGET_NAME_MAP>({
 					closeAllModals();
 				}}
 			>
-				Submit
+				Add To Board
 			</Button>
 		</Stack>
 	);

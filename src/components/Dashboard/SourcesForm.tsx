@@ -5,7 +5,7 @@ import { Button, Card, Collapse, Stack, Text } from '@mantine/core';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { Source } from '.';
 import { Tree } from '../Tree';
-import { isCamera, isSmartDashboardChooser, isTopic } from './assertions';
+import { isCamera, isCommand, isSmartDashboardChooser, isTopic } from './assertions';
 
 type Props = {
 	sourcesDefinitions: Record<string, Source>;
@@ -15,7 +15,6 @@ type Props = {
 
 const SelectSource = ({
 	name,
-	sourcesDefinitions,
 	sources,
 	sourceDef,
 	setSources,
@@ -92,6 +91,8 @@ const SelectSource = ({
 							return isSmartDashboardChooser(sub, isTopic);
 						} else if (sourceDef.type === 'camera') {
 							return isCamera(sub, isTopic);
+						} else if (sourceDef.type === 'command') {
+							return isCommand(sub, isTopic);
 						} else return true;
 					}}
 					filter={(sub) => {
@@ -104,6 +105,8 @@ const SelectSource = ({
 							);
 						} else if (sourceDef.type === 'camera') {
 							return (!isTopic(sub) && isCamera(sub, isTopic)) || true;
+						} else if (sourceDef.type === 'command') {
+							return (!isTopic(sub) && isCommand(sub, isTopic)) || true;
 						} else return true;
 					}}
 				/>

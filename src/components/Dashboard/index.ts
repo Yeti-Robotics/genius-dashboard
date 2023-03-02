@@ -5,6 +5,7 @@ import { SmartDashboardChooser } from './widgets/SmartDashboardChooser';
 import { Toggle } from './widgets/Toggle';
 import { Camera } from './widgets/Camera';
 import { Editable } from './widgets/Editable';
+import { Command } from './widgets/Command';
 
 export { Dashboard } from './Dashboard';
 
@@ -46,7 +47,8 @@ export type Source =
 			types: Type[];
 	  }>
 	| CreateSource<{ type: 'smartDashboardChooser' }>
-	| CreateSource<{ type: 'camera' }>;
+	| CreateSource<{ type: 'camera' }>
+	| CreateSource<{ type: 'command' }>;
 
 export type WidgetComponent<
 	S extends { [key: string]: Source } = {},
@@ -74,6 +76,7 @@ export const WIDGET_NAME_MAP: Record<
 	simple: SimpleDisplay as any,
 	editable: Editable as any,
 	smartDashboardChooser: SmartDashboardChooser as any,
-	toggle: Toggle as any,
+	command: Command as any,
 	camera: Camera as any,
+	toggle: Toggle as any,
 };

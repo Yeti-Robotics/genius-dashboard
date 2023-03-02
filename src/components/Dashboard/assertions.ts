@@ -59,6 +59,31 @@ export const isCamera = (
 	return true;
 };
 
+export const isCommand = (
+	o: unknown,
+	isKeyType: (o: unknown, allowedTypes?: Type[]) => boolean
+): o is Camera => {
+	if (o === undefined || o === null) return false;
+	if (isKeyType(o)) return false;
+	if (!(typeof o === 'object')) return false;
+	if (!('.controllable' in o) || !isKeyType(o['.controllable'], ['boolean']))
+		return false;
+	if (!('.isParented' in o) || !isKeyType(o['.isParented'], ['boolean']))
+		return false;
+	if (!('.name' in o) || !isKeyType(o['.name'], ['string'])) return false;
+	if (!('.type' in o) || !isKeyType(o['.type'], ['string'])) return false;
+	if (
+		!('interruptBehavior' in o) ||
+		!isKeyType(o.interruptBehavior, ['string'])
+	)
+		return false;
+	if (!('running' in o) || !isKeyType(o.running, ['boolean'])) return false;
+	if (!('runsWhenDisabled' in o) || !isKeyType(o.runsWhenDisabled, ['boolean']))
+		return false;
+
+	return true;
+};
+
 export const isTopic = (o: unknown, allowedTypes?: Type[]): o is Topic => {
 	if (o === undefined || o === null) return false;
 	if (typeof o !== 'object') return false;
