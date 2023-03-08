@@ -8,22 +8,19 @@ import {
 	useWidget,
 } from '@/stores/boardStore';
 import {
-	IconArrowsShuffle,
 	IconDots,
 	IconEdit,
 	IconGridDots,
 	IconLock,
-	IconSettings,
 	IconTrash,
 } from '@tabler/icons-react';
 import Draggable from 'react-draggable';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { WIDGET_NAME_MAP } from '.';
 import { MapOrValue } from '@/types/utils';
 import { Message } from '@/types/Message';
 import { useDisclosure } from '@mantine/hooks';
 import { openConfirmModal, openModal } from '@mantine/modals';
-import { SourcesForm } from './SourcesForm';
 import { EditWidgetModal } from './EditWidgetModal';
 
 type Props = {
@@ -32,7 +29,7 @@ type Props = {
 	zIndex: number;
 };
 
-export const WidgetBase = (props: Props) => {
+export const WidgetBase = memo((props: Props) => {
 	const { onDragEnd, onDragStart } = useBoardActions();
 	const [isDragging, setIsDragging] = useState(false);
 	const widget = useWidget(props.board.name, props.widgetName);
@@ -72,7 +69,7 @@ export const WidgetBase = (props: Props) => {
 			/>
 		</Draggable>
 	);
-};
+});
 
 export const WidgetCard = ({
 	isDragging,

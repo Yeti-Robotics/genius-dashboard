@@ -2,7 +2,7 @@ import { useAnnouncedTopics } from '@/stores/topicsStore';
 import { Topic } from '@/types/Topic';
 import { MapOrValue } from '@/types/utils';
 import { Button, Card, Collapse, Stack, Text } from '@mantine/core';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, memo, SetStateAction, useState } from 'react';
 import { Source } from '.';
 import { Tree } from '../Tree';
 import { isCamera, isCommand, isSmartDashboardChooser, isTopic } from './assertions';
@@ -115,7 +115,7 @@ const SelectSource = ({
 	);
 };
 
-export const SourcesForm = (props: Props) => {
+export const SourcesForm = memo((props: Props) => {
 	const [openedTree, setOpenedTree] = useState<string | undefined>();
 
 	return (
@@ -136,4 +136,4 @@ export const SourcesForm = (props: Props) => {
 			)}
 		</Stack>
 	);
-};
+});

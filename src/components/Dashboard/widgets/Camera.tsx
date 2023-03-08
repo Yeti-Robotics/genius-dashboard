@@ -45,7 +45,8 @@ export const Camera: WidgetComponent<
 				</Center>
 			);
 
-		let src = data.data.streams.data[0];
+		let src = data.data.streams.data[0].replace('mjpg:', '');
+		console.log(data.data.streams.data);
 
 		if (!src)
 			return (
