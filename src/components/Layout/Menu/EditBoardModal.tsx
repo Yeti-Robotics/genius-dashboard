@@ -1,4 +1,4 @@
-import { useAllBoards, useBoard, useBoardActions } from '@/stores/boardStore';
+import { useAllBoards, useBoardActions } from '@/stores/boardStore';
 import { Button, Stack, TextInput } from '@mantine/core';
 import { useValidatedState } from '@mantine/hooks';
 
@@ -15,7 +15,6 @@ export const EditBoardModal = ({ boardName }: Props) => {
 		{ value: name, lastValidValue: lastValidName, valid: nameIsValid },
 		setName,
 	] = useValidatedState(boardName, validateName);
-	const board = useBoard(lastValidName);
 	const { renameBoard } = useBoardActions();
 
 	return (

@@ -5,7 +5,6 @@ import {
 	Widget,
 	useBoardActions,
 	useCurrentBoardName,
-	useWidget,
 } from '@/stores/boardStore';
 import {
 	IconDots,
@@ -27,12 +26,12 @@ type Props = {
 	board: Board;
 	widgetName: string;
 	zIndex: number;
+	widget: Widget;
 };
 
-export const WidgetBase = memo((props: Props) => {
+export const WidgetBase = memo(({ widget, ...props }: Props) => {
 	const { onDragEnd, onDragStart } = useBoardActions();
 	const [isDragging, setIsDragging] = useState(false);
-	const widget = useWidget(props.board.name, props.widgetName);
 	const data = useTopicData(widget?.sources ?? {});
 
 	if (!widget) return null;

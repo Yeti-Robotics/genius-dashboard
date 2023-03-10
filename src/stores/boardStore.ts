@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { WIDGET_NAME_MAP } from '@/components/Dashboard';
+import { shallow } from 'zustand/shallow';
 
 export type Widget = {
 	x: number;
@@ -84,7 +85,7 @@ const useBoardStore = create<BoardStore>()(
 								// Make new boards object, filtering out the target
 								...Object.fromEntries(
 									Object.entries(state.boards).filter(
-										([name, _]) => name !== oldName
+										([name]) => name !== oldName
 									)
 								),
 								// Add the new name using the old name's values
@@ -190,12 +191,12 @@ const useBoardStore = create<BoardStore>()(
 export const useBoardActions = () => useBoardStore(({ actions }) => actions);
 
 export const useBoard = (name: string) =>
-	useBoardStore(({ boards }) => boards[name]);
+	useBoardStore(({ boards }) => boards[name], shallow);
 
 export const useAllBoards = () => useBoardStore(({ boards }) => boards);
 
 export const useCurrentBoard = () =>
-	useBoardStore(({ boards, currentBoard }) => boards[currentBoard]);
+	useBoardStore(({ boards, currentBoard }) => boards[currentBoard], shallow);
 
 export const useCurrentBoardName = () =>
 	useBoardStore(({ currentBoard }) => currentBoard);

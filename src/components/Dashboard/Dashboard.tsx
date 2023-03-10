@@ -1,8 +1,7 @@
-import { useBoardActions, useCurrentBoard } from '@/stores/boardStore';
+import { useCurrentBoard } from '@/stores/boardStore';
 import {
 	ActionIcon,
 	Box,
-	Card,
 	Center,
 	Group,
 	Paper,
@@ -19,7 +18,10 @@ export const Dashboard = () => {
 	const board = useCurrentBoard();
 	const theme = useMantineTheme();
 
-	if (!board) return <Center>No board selected, open the menu to create or select one.</Center>;
+	if (!board)
+		return (
+			<Center>No board selected, open the menu to create or select one.</Center>
+		);
 
 	return (
 		<Box pos='relative' h='100%'>
@@ -28,6 +30,7 @@ export const Dashboard = () => {
 					key={`${board.name}-${widget.display}-${widget.name}-${JSON.stringify(
 						widget.sources
 					)}`}
+					widget={widget}
 					board={board}
 					widgetName={widget.name}
 					zIndex={board.widgets.length + i * -1}
