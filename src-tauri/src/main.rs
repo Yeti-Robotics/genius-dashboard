@@ -12,10 +12,7 @@ use network_tables::v4::{Config, MessageData, PublishedTopic, SubscriptionOption
 use once_cell::sync::OnceCell;
 use serde::Deserialize;
 use tauri::{Manager, Window};
-use tokio::{
-    select,
-    sync::Mutex,
-};
+use tokio::{select, sync::Mutex};
 
 static CLIENT: OnceCell<Mutex<Option<network_tables::v4::Client>>> = OnceCell::new();
 static PUBLISHED_TOPICS: OnceCell<Mutex<HashMap<String, PublishedTopic>>> = OnceCell::new();
@@ -99,8 +96,10 @@ async fn create_new_client(
                 },
                 _ = tokio::time::sleep(Duration::from_millis(7)) => {
                     // Every 7 ms (for now) send all currently buffered messages to the frontend
-                    window.emit("message", &msg_buf).ok();
-                    msg_buf.clear();
+                    if !msg_buf.is_empty() {
+                        window.emit("message", &msg_buf).ok();
+                        msg_buf.clear();
+                    };
                 },
             }
         }
