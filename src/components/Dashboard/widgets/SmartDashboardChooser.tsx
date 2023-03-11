@@ -1,11 +1,16 @@
 import { isMessage, isSmartDashboardChooser, isTopic } from '../assertions';
-import { Center, Select, Text } from '@mantine/core';
+import { Center, Select, Stack, Text } from '@mantine/core';
 import { WidgetComponent } from '..';
 import { publishValue } from '@/utils/topicUtils';
 import { useTopic } from '@/stores/topicsStore';
+import { Message } from '@/types/Message';
 
 export const SmartDashboardChooser: WidgetComponent<{
-	chooser: { type: 'smartDashboardChooser'; description: string; required: true };
+	chooser: {
+		type: 'smartDashboardChooser';
+		description: string;
+		required: true;
+	};
 }> = {
 	Component: ({ data, sources, options }) => {
 		const chooserTopicDefinition = useTopic(sources);
@@ -18,26 +23,67 @@ export const SmartDashboardChooser: WidgetComponent<{
 				</Center>
 			);
 
-		if (!isExample && !isSmartDashboardChooser(chooserTopicDefinition.chooser, isTopic))
+		if (
+			!isExample &&
+			(!isSmartDashboardChooser(chooserTopicDefinition.chooser, isTopic) ||
+				isMessage(data.chooser))
+		)
 			return (
 				<Center>
-					<Text>Topic must follow the structure of a smartDashboardChooser</Text>
+					<Text>
+						Topic must follow the structure of a smartDashboardChooser
+					</Text>
 				</Center>
 			);
 
-		if (!data.chooser || !isSmartDashboardChooser(data.chooser, isMessage))
+		if (!data.chooser && !isMessage(data.chooser))
 			return (
 				<Center>
 					<Text>Waiting on data...</Text>
 				</Center>
 			);
 
+		if (!isSmartDashboardChooser(data.chooser, isMessage))
+			return (
+				<Stack align='center' spacing={0}>
+					<Select
+						value={
+							((data.chooser as Record<string, Message>).active
+								?.data as string) ||
+							((data.chooser as Record<string, Message>).selected
+								?.data as string) ||
+							((data.chooser as Record<string, Message>).default
+								?.data as string) ||
+							null
+						}
+						data={[]}
+						label={
+							(data.chooser as Record<string, Message>)['.name']?.data as string
+						}
+						onChange={async (value) => {
+							if (value === null) return;
+							if (!isSmartDashboardChooser(data.chooser, isMessage)) return;
+							await publishValue({
+								topic: sources.chooser + '/selected',
+								topicType: data.chooser.active.type,
+								value,
+							});
+						}}
+						disabled
+						withinPortal
+					/>
+					<Text>Incomplete chooser topic</Text>
+				</Stack>
+			);
+
 		return (
 			<Center>
 				<Select
-					value={data.chooser.active.data || data.chooser.default.data || null}
-					data={data.chooser.options.data}
-					label={data.chooser['.name'].data}
+					value={
+						data.chooser.active?.data || data.chooser.default?.data || null
+					}
+					data={data.chooser.options?.data ?? []}
+					label={data.chooser['.name']?.data}
 					onChange={async (value) => {
 						if (value === null) return;
 						if (!isSmartDashboardChooser(data.chooser, isMessage)) return;

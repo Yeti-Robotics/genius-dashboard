@@ -75,6 +75,8 @@ async fn create_new_client(
             window.emit("message", message).ok();
             // TODO log err if it occurs somehow
         }
+
+        println!("Subscription returned Non");
     });
 
     Ok(new_client)
