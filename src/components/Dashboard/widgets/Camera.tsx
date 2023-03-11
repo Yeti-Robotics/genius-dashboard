@@ -45,8 +45,7 @@ export const Camera: WidgetComponent<
 				</Center>
 			);
 
-		let src = data.data.streams.data[0].replace('mjpg:', '');
-		console.log(data.data.streams.data);
+		let src = data.data.streams.data[0]?.replace('mjpg:', '');
 
 		if (!src)
 			return (
@@ -55,9 +54,8 @@ export const Camera: WidgetComponent<
 				</Center>
 			);
 
-		const port = portRegex.exec(src)?.[1] ?? '80';
-
 		if (serverAddr === 'sim') {
+			const port = portRegex.exec(src)?.[1] ?? '80';
 			src = `http://127.0.0.1:${port}/?action=stream`;
 		}
 

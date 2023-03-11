@@ -77,6 +77,7 @@ async fn create_new_client(
 
         loop {
             select! {
+                biased;
                 message = subscription.next() => {
                     if let Some(message) = message {
                         match msg_buf.try_push(message) {
@@ -128,32 +129,6 @@ async fn close_client() {
 }
 
 #[tauri::command]
-async fn update_topic(window: Window, topic: &str) -> Result<(), String> {
-    if let Some(client) = CLIENT.get().unwrap().lock().await.as_ref() {
-        let mut subscription = client
-            .subscribe_w_options(
-                &[topic],
-                Some(SubscriptionOptions {
-                    all: Some(true),
-                    ..Default::default()
-                }),
-            )
-            .await
-            .map_err(|e| e.to_string())?;
-
-        let window = window.clone();
-        tauri::async_runtime::spawn(async move {
-            if let Some(message) = subscription.next().await {
-                window.emit("message", message).ok();
-                // TODO log err if it occurs somehow
-            }
-        });
-    }
-
-    Ok(())
-}
-
-#[tauri::command]
 async fn publish_value(
     topic: String,
     topic_type: Type,
@@ -194,8 +169,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             start_client,
             close_client,
-            publish_value,
-            update_topic
+            publish_value
         ])
         .setup(|app| {
             #[cfg(debug_assertions)] // only include this code on debug builds
