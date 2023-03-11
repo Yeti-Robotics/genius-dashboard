@@ -14,6 +14,7 @@ type TopicStore = {
 	topicData: MapOrValue<Message>;
 	announcedTopics: MapOrValue<Topic>;
 	setTopic: (message: Message) => void;
+	setManyTopics: (messages: Message[]) => void;
 	setAnnouncedTopic: (topic: Topic) => void;
 };
 
@@ -26,6 +27,19 @@ const useTopicStore = create<TopicStore>((set) => ({
 				...setTopicFromName(message.topic_name, message, topicData),
 			},
 		}));
+	},
+	setManyTopics: (messages) => {
+		set(({ topicData }) => {
+			return {
+				topicData: {
+					...messages.reduce(
+						(oldData, message) =>
+							setTopicFromName(message.topic_name, message, oldData),
+						topicData
+					),
+				},
+			};
+		});
 	},
 	setAnnouncedTopic: (topic) =>
 		set(({ announcedTopics }) => {

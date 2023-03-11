@@ -5,13 +5,17 @@
 
 mod log;
 
-use std::{collections::HashMap, net::SocketAddr, str::FromStr};
+use std::{collections::HashMap, net::SocketAddr, str::FromStr, time::Duration};
 
-use network_tables::v4::{Config, PublishedTopic, SubscriptionOptions, Type};
+use arrayvec::ArrayVec;
+use network_tables::v4::{Config, MessageData, PublishedTopic, SubscriptionOptions, Type};
 use once_cell::sync::OnceCell;
 use serde::Deserialize;
 use tauri::{Manager, Window};
-use tokio::sync::Mutex;
+use tokio::{
+    select,
+    sync::Mutex,
+};
 
 static CLIENT: OnceCell<Mutex<Option<network_tables::v4::Client>>> = OnceCell::new();
 static PUBLISHED_TOPICS: OnceCell<Mutex<HashMap<String, PublishedTopic>>> = OnceCell::new();
@@ -70,10 +74,34 @@ async fn create_new_client(
         .map_err(|e| e.to_string())?;
 
     let window = window.clone();
+
     tauri::async_runtime::spawn(async move {
-        while let Some(message) = subscription.next().await {
-            window.emit("message", message).ok();
-            // TODO log err if it occurs somehow
+        let mut msg_buf = ArrayVec::<MessageData, 64>::new();
+
+        loop {
+            select! {
+                message = subscription.next() => {
+                    if let Some(message) = message {
+                        match msg_buf.try_push(message) {
+                            Ok(_) => {},
+                            Err(err) => {
+                                // Buffer is full, send it to frontend
+                                window.emit("message", &msg_buf).ok();
+                                msg_buf.clear();
+                                // SAFETY: Just cleared buffer + no awaits = safe 😁
+                                unsafe { msg_buf.push_unchecked(err.element()) };
+                            }
+                        }
+                    } else {
+                        // If sub returns none, break it out
+                        break;
+                    }
+                },
+                _ = tokio::time::sleep(Duration::from_millis(7)) => {
+                    // Every 7 ms (for now) send all currently buffered messages to the frontend
+                    window.emit("message", &msg_buf).ok();
+                },
+            }
         }
 
         println!("Subscription returned Non");

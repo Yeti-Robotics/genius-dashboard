@@ -17,12 +17,17 @@ import { notifications, Notifications } from '@mantine/notifications';
 import { Dashboard } from './components/Dashboard';
 import { startClient } from './utils/client';
 
-const setTopic = getTopicStore().setTopic;
+const setManyTopics = getTopicStore().setManyTopics;
 const setAnnouncedTopic = getTopicStore().setAnnouncedTopic;
 
+let first = true;
 // Handle messages from the server
-listen<Message>('message', ({ payload }) => {
-	setTopic(payload);
+listen<Message[]>('message', ({ payload }) => {
+	if (first) {
+		console.log(payload);
+		first = false;
+	}
+	setManyTopics(payload);
 });
 listen<Topic>('announce', ({ payload }) => setAnnouncedTopic(payload));
 listen('disconnect', () => {

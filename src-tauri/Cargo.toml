@@ -24,6 +24,7 @@ walkdir = "2.3"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "time", "local-time", "smallvec", "parking_lot"] }
 time = { version = "0.3", features = ["macros", "parsing"] }
+arrayvec = { version = "0.7.2", features = ["serde"] }
 
 [features]
 # by default Tauri runs in production mode
