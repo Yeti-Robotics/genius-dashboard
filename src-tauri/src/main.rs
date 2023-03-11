@@ -100,6 +100,7 @@ async fn create_new_client(
                 _ = tokio::time::sleep(Duration::from_millis(7)) => {
                     // Every 7 ms (for now) send all currently buffered messages to the frontend
                     window.emit("message", &msg_buf).ok();
+                    msg_buf.clear();
                 },
             }
         }
