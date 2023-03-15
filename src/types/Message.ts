@@ -1,4 +1,4 @@
-import { MapOrValue } from "./utils";
+import { MapOrValue } from './utils';
 
 export type Type =
 	| 'boolean'
@@ -13,7 +13,14 @@ export type Type =
 	| 'float[]'
 	| 'string[]';
 
-export type MessageType = boolean | number | string | number[] | boolean[] | string[] | null;
+export type MessageType =
+	| boolean
+	| number
+	| string
+	| number[]
+	| boolean[]
+	| string[]
+	| null;
 
 export type TypeToTSType<T extends Type> = 'boolean' extends T
 	? boolean
@@ -38,14 +45,14 @@ export type TypeToTSType<T extends Type> = 'boolean' extends T
 	: never;
 
 export type Message<
-	T extends boolean | number | string | number[] | boolean[] | string[] | null =
+	T extends
 		| boolean
 		| number
 		| string
 		| number[]
 		| boolean[]
 		| string[]
-		| null
+		| null = boolean | number | string | number[] | boolean[] | string[] | null
 > = {
 	topic_name: string;
 	timestamp: number;
@@ -82,3 +89,9 @@ export type Command = {
 	runsWhenDisabled: Message<boolean>;
 	[key: string]: MapOrValue<Message>;
 };
+
+export type ButtonHelper = {
+	['.name']: Message<string>;
+	['.controllable']: Message<boolean>;
+	buttonHelper: Message<boolean>;
+} & Record<string, Message<boolean | string | number>>;

@@ -26,7 +26,7 @@ const defaultForType: Record<Type, any> = {
 	boolean: true,
 	double: 3.14159,
 	float: 6.28318,
-	int: 1113,
+	int: 1,
 	raw: [0, 1, 255, 6, 7, 8],
 	string: 'baka',
 };
@@ -40,13 +40,13 @@ const defaultMessage = <T extends Type>(type: T): Message<TypeToTSType<T>> => ({
 
 const defaultForOption = (option: Option | null | undefined) => {
 	if (option?.type === 'enum') {
-		return option.options;
+		return option.default ?? option.options[0];
 	} else if (option?.type === 'string') {
-		return 'Red is Sus!';
+		return option.default ?? 'Red is Sus!';
 	} else if (option?.type === 'float') {
-		return 3.14;
+		return option.default ?? 3.14;
 	} else if (option?.type === 'int') {
-		return 1113;
+		return option.default ?? 1113;
 	} else {
 		throw new Error(`Unknown widget option type: ${(option as any)?.type}`);
 	}
@@ -100,6 +100,20 @@ export const WidgetExample = <K extends keyof typeof WIDGET_NAME_MAP>({
 						interruptBehavior: defaultMessage('string'),
 						running: defaultMessage('boolean'),
 						runsWhenDisabled: defaultMessage('boolean'),
+					},
+				];
+			} else if (source.type === 'controller') {
+				return [
+					sourceName,
+					{
+						'.controllable': defaultMessage('boolean'),
+						'.name': defaultMessage('string'),
+						buttonHelper: defaultMessage('boolean'),
+						...Array.from(Array(6).keys()).reduce<Record<string, Message>>((obj, n) => {
+							obj[`${n + 1}-command`] = defaultMessage('string');
+							obj[`${n + 1}-layer`] = defaultMessage('int');
+							return obj;
+						}, {})
 					},
 				];
 			}

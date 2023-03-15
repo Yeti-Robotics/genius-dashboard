@@ -1,4 +1,4 @@
-import { Camera, Command, Message, SmartDashboardChooser, Type } from '@/types/Message';
+import { ButtonHelper, Camera, Command, Message, SmartDashboardChooser, Type } from '@/types/Message';
 import { Topic } from '@/types/Topic';
 import { Option } from '.';
 
@@ -45,7 +45,7 @@ export const isCamera = (
 	o: unknown,
 	isKeyType: (o: unknown, allowedTypes?: Type[]) => boolean
 ): o is Camera => {
-	if (o === undefined || o === null) return false;
+	if (o === null) return false;
 	if (isKeyType(o)) return false;
 	if (!(typeof o === 'object')) return false;
 	if (!('connected' in o) || !isKeyType(o.connected, ['boolean'])) return false;
@@ -63,7 +63,7 @@ export const isCommand = (
 	o: unknown,
 	isKeyType: (o: unknown, allowedTypes?: Type[]) => boolean
 ): o is Command => {
-	if (o === undefined || o === null) return false;
+	if (o === null) return false;
 	if (isKeyType(o)) return false;
 	if (!(typeof o === 'object')) return false;
 	if (!('.controllable' in o) || !isKeyType(o['.controllable'], ['boolean']))
@@ -84,8 +84,18 @@ export const isCommand = (
 	return true;
 };
 
+export const isButtonHelper = (
+	o: unknown,
+	isKeyType: (o: unknown, allowedTypes?: Type[]) => boolean
+): o is ButtonHelper => {
+	if (o === null) return false;
+	if (typeof o !== 'object') return false;
+	if (!('buttonHelper' in o) || !isKeyType(o.buttonHelper, ['boolean'])) return false;
+	return true;
+};
+
 export const isTopic = (o: unknown, allowedTypes?: Type[]): o is Topic => {
-	if (o === undefined || o === null) return false;
+	if (o === null) return false;
 	if (typeof o !== 'object') return false;
 	if (!('name' in o) || typeof o.name !== 'string') return false;
 	if (!('id' in o) || typeof o.id !== 'number') return false;
