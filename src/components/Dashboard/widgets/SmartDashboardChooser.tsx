@@ -4,6 +4,8 @@ import { WidgetComponent } from '..';
 import { publishValue } from '@/utils/topicUtils';
 import { useTopic } from '@/stores/topicsStore';
 import { Message } from '@/types/Message';
+import { useTauriEvent } from '@/utils/tauriHooks';
+import { useRef } from 'react';
 
 export const SmartDashboardChooser: WidgetComponent<{
 	chooser: {
@@ -15,6 +17,22 @@ export const SmartDashboardChooser: WidgetComponent<{
 	Component: ({ data, sources, options }) => {
 		const chooserTopicDefinition = useTopic(sources);
 		const isExample = 'example' in options;
+		const lastValueRef = useRef<string | null>(null);
+
+		const setValueToLast = () => {
+			if (!isSmartDashboardChooser(data.chooser, isMessage)) return;
+			void (
+				lastValueRef.current &&
+				publishValue({
+					topic: sources.chooser + '/selected',
+					topicType: data.chooser.active.type,
+					value: lastValueRef.current,
+				})
+			);
+		};
+
+		useTauriEvent('reconnect', setValueToLast);
+		useTauriEvent('connect', setValueToLast);
 
 		if (!isExample && !chooserTopicDefinition.chooser)
 			return (
@@ -87,6 +105,7 @@ export const SmartDashboardChooser: WidgetComponent<{
 					onChange={async (value) => {
 						if (value === null) return;
 						if (!isSmartDashboardChooser(data.chooser, isMessage)) return;
+						lastValueRef.current = value;
 						await publishValue({
 							topic: sources.chooser + '/selected',
 							topicType: data.chooser.active.type,

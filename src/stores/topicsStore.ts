@@ -111,7 +111,7 @@ export const usePublishValue = (topic: string) => {
 		}).then((res) => {
 			if (!res.isOk()) {
 				console.error(res);
-				setTopic(prevData);
+				prevData && setTopic(prevData);
 			}
 		});
 
@@ -119,7 +119,7 @@ export const usePublishValue = (topic: string) => {
 		setTopic({
 			topic_name: topic,
 			data: newValue,
-			timestamp: prevData.timestamp + 1,
+			timestamp: (prevData?.timestamp ?? 0) + 1,
 			type: topicDef.type,
 		});
 	};

@@ -119,6 +119,7 @@ async fn start_client(window: Window, addr: &str) -> Result<(), String> {
     // Must clear published topics when creating a new client
     PUBLISHED_TOPICS.get().unwrap().lock().await.clear();
     *CLIENT.get().unwrap().lock().await = Some(new_client);
+    window.emit("connect", ()).ok();
 
     Ok(())
 }

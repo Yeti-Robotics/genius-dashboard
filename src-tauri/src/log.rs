@@ -3,7 +3,7 @@ use std::{fs::File, path::Path};
 pub fn init_logger(app: &tauri::App) -> Result<(), std::io::Error> {
     if cfg!(debug_assertions) {
         // In dev mode just do a subscriber to stdout
-        tracing_subscriber::fmt().with_env_filter("debug").init();
+        tracing_subscriber::fmt().with_env_filter("info").init();
         return Ok(())
     }
 
