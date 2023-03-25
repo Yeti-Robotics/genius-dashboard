@@ -16,6 +16,7 @@ import { notifications, Notifications } from '@mantine/notifications';
 import { Dashboard } from './components/Dashboard';
 import { startClient } from './utils/client';
 import { BoardSwitcher } from './components/BoardSwitcher';
+import { useEffect } from 'react';
 
 const setManyTopics = getTopicStore().setManyTopics;
 const setAnnouncedTopic = getTopicStore().setAnnouncedTopic;
@@ -57,6 +58,10 @@ export const App = () => {
 	};
 
 	useHotkeys([['mod+r', startClient]]);
+
+	useEffect(() => {
+		startClient();
+	}, []);
 
 	return (
 		<ColorProvider

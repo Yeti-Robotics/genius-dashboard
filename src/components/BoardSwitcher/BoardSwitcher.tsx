@@ -6,7 +6,6 @@ import {
 import {
 	Affix,
 	Group,
-	NavLink,
 	Paper,
 	Text,
 	createStyles,

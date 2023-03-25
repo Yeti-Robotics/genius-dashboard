@@ -20,12 +20,11 @@ export const SmartDashboardChooser: WidgetComponent<{
 		const lastValueRef = useRef<string | null>(null);
 
 		const setValueToLast = () => {
-			if (!isSmartDashboardChooser(data.chooser, isMessage)) return;
 			void (
 				lastValueRef.current &&
 				publishValue({
 					topic: sources.chooser + '/selected',
-					topicType: data.chooser.active.type,
+					topicType: 'string',
 					value: lastValueRef.current,
 				})
 			);
