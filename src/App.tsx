@@ -10,16 +10,17 @@ import { Layout } from '@/components/Layout';
 import { listen } from '@tauri-apps/api/event';
 import { Message } from '@/types/Message';
 import { getTopicStore } from '@/stores/topicsStore';
-import { ModalsProvider } from '@mantine/modals';
+import { ModalsProvider, openModal } from '@mantine/modals';
 import { Topic } from '@/types/Topic';
 import { notifications, Notifications } from '@mantine/notifications';
 import { Dashboard } from './components/Dashboard';
 import { startClient } from './utils/client';
 import { BoardSwitcher } from './components/BoardSwitcher';
 import { useEffect } from 'react';
+import { SelectWidgetModal } from './components/Dashboard/SelectWidgetModal';
+import { getBoardStore } from './stores/boardStore';
 
 const setManyTopics = getTopicStore().setManyTopics;
-const setAnnouncedTopic = getTopicStore().setAnnouncedTopic;
 
 // Handle messages from the server
 listen<Message[]>('message', ({ payload }) => {
@@ -57,7 +58,19 @@ export const App = () => {
 		_setPrimaryColor(color);
 	};
 
-	useHotkeys([['mod+r', startClient]]);
+	useHotkeys([
+		['mod+r', startClient],
+		[
+			'mod+t',
+			() => {
+				const boardStore = getBoardStore();
+				openModal({
+					title: 'Select a widget',
+					children: <SelectWidgetModal board={boardStore.boards[boardStore.currentBoard]} />,
+				});
+			},
+		],
+	]);
 
 	useEffect(() => {
 		startClient();

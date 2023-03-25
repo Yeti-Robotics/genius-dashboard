@@ -28,9 +28,7 @@ export const Dashboard = memo(() => {
 		<Box pos='relative' h='100%'>
 			{board.widgets.map((widget, i) => (
 				<WidgetBase
-					key={`${board.name}-${widget.display}-${widget.name}-${JSON.stringify(
-						widget.sources
-					)}`}
+					key={`${board.name}-${widget.display}-${widget.name}`}
 					widget={widget}
 					board={board}
 					widgetName={widget.name}

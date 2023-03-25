@@ -208,3 +208,6 @@ export const useWidget = (boardName: string, widgetName: string) =>
 	useBoardStore((state) =>
 		state.boards[boardName]?.widgets.find((w) => w.name === widgetName)
 	);
+
+/** For use outside of react code only, be careful */
+export const getBoardStore = () => useBoardStore.getState();
