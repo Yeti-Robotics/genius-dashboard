@@ -16,7 +16,7 @@ export const ExtraProps = ({
 	const extraProps = Object.entries(data)
 		.filter(([name, message]) => !baseKeys.includes(name) && isMessage(message))
 		.map(([name, message]) => (
-			<tr>
+			<tr key={name}>
 				<td>
 					<Text fw={600} size='sm'>
 						{name}

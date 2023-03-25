@@ -12,10 +12,10 @@ import { Message } from '@/types/Message';
 import { getTopicStore } from '@/stores/topicsStore';
 import { ModalsProvider } from '@mantine/modals';
 import { Topic } from '@/types/Topic';
-import { useEffect } from 'react';
 import { notifications, Notifications } from '@mantine/notifications';
 import { Dashboard } from './components/Dashboard';
 import { startClient } from './utils/client';
+import { BoardSwitcher } from './components/BoardSwitcher';
 
 const setManyTopics = getTopicStore().setManyTopics;
 const setAnnouncedTopic = getTopicStore().setAnnouncedTopic;
@@ -58,10 +58,6 @@ export const App = () => {
 
 	useHotkeys([['mod+r', startClient]]);
 
-	useEffect(() => {
-		startClient();
-	}, []);
-
 	return (
 		<ColorProvider
 			primaryColor={primaryColor}
@@ -80,6 +76,7 @@ export const App = () => {
 						<Layout>
 							<Dashboard />
 							<Notifications position='bottom-left' limit={2} />
+							<BoardSwitcher />
 						</Layout>
 					</ModalsProvider>
 				</MantineProvider>

@@ -13,8 +13,9 @@ import { WidgetBase } from './WidgetBase';
 import { IconPlus } from '@tabler/icons-react';
 import { openModal } from '@mantine/modals';
 import { SelectWidgetModal } from './SelectWidgetModal/SelectWidgetModal';
+import { memo } from 'react';
 
-export const Dashboard = () => {
+export const Dashboard = memo(() => {
 	const board = useCurrentBoard();
 	const theme = useMantineTheme();
 
@@ -75,4 +76,4 @@ export const Dashboard = () => {
 			</Paper>
 		</Box>
 	);
-};
+});
