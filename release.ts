@@ -21,6 +21,8 @@ if (newVer === null) {
 	Deno.exit(1);
 }
 
+if (!confirm(`Do you want to publish ${newVer}?`)) Deno.exit(0);
+
 config.package.version = newVer;
 Deno.writeTextFileSync(
 	'./src-tauri/tauri.conf.json',
@@ -41,7 +43,6 @@ git push origin
 git tag $1
 git push origin $1
 */
-
 await run(['git', 'add', '.']);
 await run(['git', 'commit', '-m', `"[release] ${newVer}"`]);
 await run(['git', 'push', 'origin']);
