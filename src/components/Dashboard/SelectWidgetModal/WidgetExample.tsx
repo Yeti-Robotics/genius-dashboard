@@ -109,11 +109,27 @@ export const WidgetExample = <K extends keyof typeof WIDGET_NAME_MAP>({
 						'.controllable': defaultMessage('boolean'),
 						'.name': defaultMessage('string'),
 						buttonHelper: defaultMessage('boolean'),
-						...Array.from(Array(6).keys()).reduce<Record<string, Message>>((obj, n) => {
-							obj[`${n + 1}-command`] = defaultMessage('string');
-							obj[`${n + 1}-layer`] = defaultMessage('int');
-							return obj;
-						}, {})
+						...Array.from(Array(6).keys()).reduce<Record<string, Message>>(
+							(obj, n) => {
+								obj[`${n + 1}-command`] = defaultMessage('string');
+								obj[`${n + 1}-layer`] = defaultMessage('int');
+								return obj;
+							},
+							{}
+						),
+					},
+				];
+			} else if (source.type === 'subsystem') {
+				return [
+					sourceName,
+					{
+						'.hasDefault': defaultMessage('boolean'),
+						'.default': defaultMessage('string'),
+						'.hasCommand': defaultMessage('boolean'),
+						'.command': defaultMessage('string'),
+						'.name': defaultMessage('string'),
+						'.type': defaultMessage('string'),
+						encoder: defaultMessage('double'),
 					},
 				];
 			}

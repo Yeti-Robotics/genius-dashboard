@@ -5,7 +5,14 @@ import { Button, Card, Collapse, Stack, Text } from '@mantine/core';
 import { Dispatch, memo, SetStateAction, useState } from 'react';
 import { Source } from '.';
 import { Tree } from '../Tree';
-import { isButtonHelper, isCamera, isCommand, isSmartDashboardChooser, isTopic } from './assertions';
+import {
+	isButtonHelper,
+	isCamera,
+	isCommand,
+	isSmartDashboardChooser,
+	isSubsystem,
+	isTopic,
+} from './assertions';
 
 type Props = {
 	sourcesDefinitions: Record<string, Source>;
@@ -67,26 +74,19 @@ const SelectSource = ({
 					tree={topics}
 					hasChildren={((sub: MapOrValue<Topic>) => !isTopic(sub)) as any}
 					onSelect={(selectable, trail) => {
-						if (sourceDef.type === 'topic') {
-							if (isTopic(selectable, sourceDef.types)) {
-								setSources((prev) => ({ ...prev, [name]: selectable.name }));
-								setSelected(selectable.name);
-							}
-						} else {
-							const topic = `/${trail.join('/')}`;
-							setSources((prev) => ({
-								...prev,
-								[name]: `/${trail.join('/')}`,
-							}));
-							setSelected(topic);
-						}
+						const topic = `/${trail.join('/')}`;
+						setSources((prev) => ({
+							...prev,
+							[name]: `/${trail.join('/')}`,
+						}));
+						setSelected(topic);
 
 						// Success close this tree
 						close();
 					}}
 					selectable={(sub) => {
 						if (sourceDef.type === 'topic') {
-							return isTopic(sub);
+							return true;
 						} else if (sourceDef.type === 'smartDashboardChooser') {
 							return isSmartDashboardChooser(sub, isTopic);
 						} else if (sourceDef.type === 'camera') {
@@ -95,6 +95,8 @@ const SelectSource = ({
 							return isCommand(sub, isTopic);
 						} else if (sourceDef.type === 'controller') {
 							return isButtonHelper(sub, isTopic);
+						} else if (sourceDef.type === 'subsystem') {
+							return isSubsystem(sub, isTopic);
 						} else return true;
 					}}
 					filter={(sub) => {
@@ -111,6 +113,8 @@ const SelectSource = ({
 							return (!isTopic(sub) && isCommand(sub, isTopic)) || true;
 						} else if (sourceDef.type === 'controller') {
 							return (!isTopic(sub) && isButtonHelper(sub, isTopic)) || true;
+						} else if (sourceDef.type === 'subsystem') {
+							return (!isTopic(sub) && isSubsystem(sub, isTopic)) || true;
 						} else return true;
 					}}
 				/>

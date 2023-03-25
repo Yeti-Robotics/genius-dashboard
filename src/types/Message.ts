@@ -90,6 +90,16 @@ export type Command = {
 	[key: string]: MapOrValue<Message>;
 };
 
+export type Subsystem = {
+	['.hasDefault']: Message<boolean>;
+	['.default']: Message<string>;
+	['.hasCommand']: Message<boolean>;
+	['.command']: Message<string>;
+	['.name']: Message<string>;
+	['.type']: Message<string>;
+	[key: string]: MapOrValue<Message>;
+};
+
 export type ButtonHelper = {
 	['.name']: Message<string>;
 	['.controllable']: Message<boolean>;

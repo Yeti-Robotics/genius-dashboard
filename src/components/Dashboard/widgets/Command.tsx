@@ -4,6 +4,7 @@ import { WidgetComponent } from '..';
 import { usePublishValue } from '@/stores/topicsStore';
 import { useEffect, useState } from 'react';
 import { Command as CommandMessage } from '@/types/Message';
+import { ExtraProps } from '../ExtraProps';
 
 const baseKeys: string[] = [
 	'.controllable',
@@ -52,12 +53,6 @@ export const Command: WidgetComponent<{
 		const isRunning = data.command.running.data;
 		const controllable = data.command['.controllable'].data;
 
-		const extraProps = Object.entries(data.command)
-			.filter(([name]) => !baseKeys.includes(name))
-			.map(([name, message]) => {
-				// TODO: this
-			});
-
 		return (
 			<Stack>
 				{controllable && (
@@ -71,6 +66,7 @@ export const Command: WidgetComponent<{
 						{isRunning ? 'Unschedule' : 'Schedule'}
 					</Button>
 				)}
+				<ExtraProps data={data.command} baseKeys={baseKeys} />
 			</Stack>
 		);
 	},

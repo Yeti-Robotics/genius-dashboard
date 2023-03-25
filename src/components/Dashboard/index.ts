@@ -7,6 +7,7 @@ import { Camera } from './widgets/Camera';
 import { Editable } from './widgets/Editable';
 import { Command } from './widgets/Command';
 import { Controller } from './widgets/Controller';
+import { Subsystem } from './widgets/Subsystem';
 
 export { Dashboard } from './Dashboard';
 
@@ -50,6 +51,7 @@ export type Source =
 	| CreateSource<{ type: 'smartDashboardChooser' }>
 	| CreateSource<{ type: 'camera' }>
 	| CreateSource<{ type: 'command' }>
+	| CreateSource<{ type: 'subsystem' }>
 	| CreateSource<{ type: 'controller' }>;
 
 export type WidgetComponent<
@@ -82,4 +84,5 @@ export const WIDGET_NAME_MAP: Record<
 	camera: Camera as any,
 	toggle: Toggle as any,
 	controller: Controller as any,
+	subsystem: Subsystem as any
 };
