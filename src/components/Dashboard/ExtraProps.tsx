@@ -24,8 +24,8 @@ export const ExtraProps = ({
 				</td>
 				<td>
 					<DisplaySimply
-						maxW={maxW ?? 100}
-						textSize='sm'
+						maxW={maxW ?? 500}
+						textSize={12}
 						message={message as Message}
 					/>
 				</td>

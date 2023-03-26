@@ -24,7 +24,7 @@ export const SimpleDisplay: WidgetComponent<
 			);
 
 		return (
-			<DisplaySimply message={data.data} />
+			<DisplaySimply textSize={16} message={data.data} />
 		);
 	},
 	description: 'Display data simply.',
