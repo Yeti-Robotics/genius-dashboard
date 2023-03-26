@@ -82,6 +82,7 @@ export const BoardSwitcher = memo(() => {
 							sx={(theme) => ({ borderRadius: theme.radius.sm })}
 							size={18}
 							className={cx({ [classes.active]: currentBoard === board })}
+							key={board}
 						>
 							{board}
 						</Text>

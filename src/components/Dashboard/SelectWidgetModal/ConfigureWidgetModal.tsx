@@ -87,8 +87,11 @@ export const ConfigureWidgetModal = <K extends keyof typeof WIDGET_NAME_MAP>({
 						x: 100,
 						y: 300,
 						locked: false,
-						height: 0,
-						width: 0,
+						height: 150,
+						width: 150,
+						autoSize: true,
+						lockSize: false,
+						state: {}
 					});
 					setSubmitting(false);
 					closeAllModals();

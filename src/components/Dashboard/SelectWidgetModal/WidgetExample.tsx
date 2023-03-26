@@ -169,9 +169,11 @@ export const WidgetExample = <K extends keyof typeof WIDGET_NAME_MAP>({
 						width: 100,
 						x: 300,
 						y: 300,
+						autoSize: true,
+						lockSize: false,
+						state: {}
 					}}
 					widgetName='Example'
-					zIndex={0}
 				/>
 			</Card.Section>
 			<Card.Section pb='md' inheritPadding>

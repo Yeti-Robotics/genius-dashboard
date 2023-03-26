@@ -21,6 +21,7 @@ import { SelectWidgetModal } from './components/Dashboard/SelectWidgetModal';
 import { getBoardStore } from './stores/boardStore';
 
 const setManyTopics = getTopicStore().setManyTopics;
+const setAnnouncedTopic = getTopicStore().setAnnouncedTopic;
 
 // Handle messages from the server
 listen<Message[]>('message', ({ payload }) => {

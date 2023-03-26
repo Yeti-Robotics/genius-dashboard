@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { WIDGET_NAME_MAP } from '@/components/Dashboard';
 import { shallow } from 'zustand/shallow';
+import { migrateBoardStore } from './migrations';
 
 export type Widget = {
 	x: number;
@@ -12,6 +13,9 @@ export type Widget = {
 	locked: boolean;
 	sources: Record<string, string>;
 	options: Record<string, any>;
+	state: Record<string, string>;
+	autoSize: boolean;
+	lockSize: boolean;
 	display: keyof typeof WIDGET_NAME_MAP;
 };
 
@@ -21,7 +25,7 @@ export type Board = {
 	settings: object;
 };
 
-type BoardStore = {
+export type BoardStore = {
 	boards: Record<string, Board>;
 	currentBoard: string;
 	_hasHydrated: boolean;
@@ -42,8 +46,6 @@ type Actions = {
 		newWidget: Partial<Widget>
 	) => void;
 	removeWidget: (boardName: string, widgetName: string) => void;
-	/** Moves the dragging widget to the start of widgets array */
-	onDragStart: (boardName: string, widgetName: string) => void;
 	/** Call when dragging ends */
 	onDragEnd: (
 		boardName: string,
@@ -51,6 +53,7 @@ type Actions = {
 		newPos: { x: number; y: number }
 	) => void;
 	setHasHydrated: (newHydrated: boolean) => void;
+	moveWidgetToFront: (boardName: string, widgetName: string) => void;
 };
 
 const moveWidgetToFront = (
@@ -68,7 +71,7 @@ const useBoardStore = create<BoardStore>()(
 		(set) => ({
 			boards: {},
 			currentBoard: '',
-			_hasHydrated: false as boolean,
+			_hasHydrated: false,
 			actions: {
 				setCurrentBoard: (name: string) => set({ currentBoard: name }),
 				setBoard: (name: string, newBoard: Partial<Board>) =>
@@ -99,7 +102,7 @@ const useBoardStore = create<BoardStore>()(
 							Object.entries(boards).filter(([name]) => name !== removeName)
 						),
 					})),
-				onDragStart: (boardName, widgetName) =>
+				moveWidgetToFront: (boardName, widgetName) =>
 					set(({ boards }) => ({
 						boards: {
 							...boards,
@@ -176,6 +179,8 @@ const useBoardStore = create<BoardStore>()(
 				boards: state.boards,
 				currentBoard: state.currentBoard,
 			}),
+			migrate: (store, version) => migrateBoardStore(store, version) as BoardStore,
+			version: 1,
 			onRehydrateStorage: (state) => {
 				console.log('Hydrating with:', state);
 				return (state, err) => {
