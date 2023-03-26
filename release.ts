@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-run
 import {
 	increment,
 	ReleaseType,
@@ -44,7 +44,7 @@ git tag $1
 git push origin $1
 */
 await run(['git', 'add', '.']);
-await run(['git', 'commit', '-m', `"[release] ${newVer}"`]);
+await run(['git', 'commit', '-m', `[release] ${newVer}`]);
 await run(['git', 'push', 'origin']);
 await run(['git', 'tag', newVer]);
 await run(['git', 'push', 'origin', newVer]);

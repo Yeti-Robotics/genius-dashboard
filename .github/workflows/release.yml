@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -34,7 +35,7 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 7.27.0
+          version: 7.30.3
 
       - name: Sync node version and setup cache
         uses: actions/setup-node@v3
