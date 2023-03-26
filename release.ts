@@ -14,16 +14,16 @@ const config: TauriConfig = JSON.parse(
 	Deno.readTextFileSync('./src-tauri/tauri.conf.json')
 );
 
-let newVer = increment(config.package.version, Deno.args[0] as ReleaseType);
+const newVer = increment(config.package.version, Deno.args[0] as ReleaseType);
 
 if (newVer === null) {
 	console.error('Somethings went wrong updating the version, args:', Deno.args);
 	Deno.exit(1);
 }
 
-newVer = 'v' + newVer;
+const newVerWithV = 'v' + newVer;
 
-if (!confirm(`Do you want to publish ${newVer}?`)) Deno.exit(0);
+if (!confirm(`Do you want to publish ${newVerWithV}?`)) Deno.exit(0);
 
 config.package.version = newVer;
 Deno.writeTextFileSync(
@@ -46,9 +46,9 @@ git tag $1
 git push origin $1
 */
 await run(['git', 'add', '.']);
-await run(['git', 'commit', '-m', `[release] ${newVer}`]);
+await run(['git', 'commit', '-m', `[release] ${newVerWithV}`]);
 await run(['git', 'push', 'origin']);
-await run(['git', 'tag', newVer]);
-await run(['git', 'push', 'origin', newVer]);
+await run(['git', 'tag', newVerWithV]);
+await run(['git', 'push', 'origin', newVerWithV]);
 
 
