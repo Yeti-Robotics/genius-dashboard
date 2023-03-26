@@ -14,12 +14,14 @@ const config: TauriConfig = JSON.parse(
 	Deno.readTextFileSync('./src-tauri/tauri.conf.json')
 );
 
-const newVer = increment(config.package.version, Deno.args[0] as ReleaseType);
+let newVer = increment(config.package.version, Deno.args[0] as ReleaseType);
 
 if (newVer === null) {
 	console.error('Somethings went wrong updating the version, args:', Deno.args);
 	Deno.exit(1);
 }
+
+newVer = 'v' + newVer;
 
 if (!confirm(`Do you want to publish ${newVer}?`)) Deno.exit(0);
 
