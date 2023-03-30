@@ -95,7 +95,7 @@ export const Controller: WidgetComponent<
 							order = (pivotRow + 1) * options.columns;
 
 						return (
-							<Stack align='center' sx={{ order }} spacing={0}>
+							<Stack key={i} align='center' sx={{ order }} spacing={0}>
 								<Button
 									bg={color}
 									p='md'

@@ -62,7 +62,23 @@ export class Result<T, E> {
 		return errFn(this.internal.err);
 	}
 
-	isOk(): boolean {
+	isOk() {
 		return 'ok' in this.internal;
+	}
+
+	isErr() {
+		return 'err' in this.internal;
+	}
+
+	onOk(handler: (ok: T) => void) {
+		if ('ok' in this.internal) {
+			handler(this.internal.ok);
+		}
+	}
+
+	onErr(handler: (err: E) => void) {
+		if ('err' in this.internal) {
+			handler(this.internal.err);
+		}
 	}
 }

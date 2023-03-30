@@ -73,39 +73,40 @@ async fn create_new_client(
     let window = window.clone();
 
     tauri::async_runtime::spawn(async move {
+        println!("Started sub");
         let mut msg_buf = ArrayVec::<MessageData, 64>::new();
 
         loop {
             select! {
-                biased;
-                message = subscription.next() => {
-                    if let Some(message) = message {
-                        match msg_buf.try_push(message) {
-                            Ok(_) => {},
-                            Err(err) => {
-                                // Buffer is full, send it to frontend
-                                window.emit("message", &msg_buf).ok();
-                                msg_buf.clear();
-                                // SAFETY: Just cleared buffer + no awaits = safe 😁
-                                unsafe { msg_buf.push_unchecked(err.element()) };
+                    biased;
+                    message = subscription.next() => {
+                        if let Some(message) = message {
+                            if message.topic_name.contains("Auto") {println!("Got message: {:?}", message);}
+                            match msg_buf.try_push(message) {
+                                Ok(_) => {},
+                                Err(err) => {
+                                    // Buffer is full, send it to frontend
+                                    window.emit("message", &msg_buf).ok();
+                                    msg_buf.clear();
+                                    // SAFETY: Just cleared buffer + no awaits = safe 😁
+                                    unsafe { msg_buf.push_unchecked(err.element()) };
+                                }
                             }
+                        } else {
+                            // If sub returns none, break it out
+                            println!("Subscription returned Non");
+                            break;
                         }
-                    } else {
-                        // If sub returns none, break it out
-                        break;
-                    }
-                },
-                _ = tokio::time::sleep(Duration::from_millis(7)) => {
-                    // Every 7 ms (for now) send all currently buffered messages to the frontend
-                    if !msg_buf.is_empty() {
-                        window.emit("message", &msg_buf).ok();
-                        msg_buf.clear();
-                    };
-                },
-            }
+                    },
+                    _ = tokio::time::sleep(Duration::from_millis(7)) => {
+                        // Every 7 ms (for now) send all currently buffered messages to the frontend
+                        if !msg_buf.is_empty() {
+                            window.emit("message", &msg_buf).ok();
+                            msg_buf.clear();
+                        };
+                    },
+                }
         }
-
-        println!("Subscription returned Non");
     });
 
     Ok(new_client)
@@ -127,6 +128,7 @@ async fn start_client(window: Window, addr: &str) -> Result<(), String> {
 #[tauri::command]
 async fn close_client() {
     *CLIENT.get().unwrap().lock().await = None;
+    tracing::info!("Dropped client");
 }
 
 #[tauri::command]

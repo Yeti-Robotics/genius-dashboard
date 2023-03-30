@@ -6,6 +6,7 @@ import { useTopic } from '@/stores/topicsStore';
 import { Message } from '@/types/Message';
 import { useTauriEvent } from '@/utils/tauriHooks';
 import { useRef } from 'react';
+import { notifications } from '@mantine/notifications';
 
 export const SmartDashboardChooser: WidgetComponent<{
 	chooser: {
@@ -80,11 +81,6 @@ export const SmartDashboardChooser: WidgetComponent<{
 						onChange={async (value) => {
 							if (value === null) return;
 							if (!isSmartDashboardChooser(data.chooser, isMessage)) return;
-							await publishValue({
-								topic: sources.chooser + '/selected',
-								topicType: data.chooser.active.type,
-								value,
-							});
 						}}
 						disabled
 						withinPortal
@@ -96,6 +92,7 @@ export const SmartDashboardChooser: WidgetComponent<{
 		return (
 			<Center>
 				<Select
+					searchable
 					value={
 						data.chooser.active?.data || data.chooser.default?.data || null
 					}
@@ -105,10 +102,16 @@ export const SmartDashboardChooser: WidgetComponent<{
 						if (value === null) return;
 						if (!isSmartDashboardChooser(data.chooser, isMessage)) return;
 						lastValueRef.current = value;
-						await publishValue({
+						const result = await publishValue({
 							topic: sources.chooser + '/selected',
 							topicType: data.chooser.active.type,
 							value,
+						});
+						result.onErr((err) => {
+							notifications.show({
+								title: `Error updating value`,
+								message: err,
+							});
 						});
 					}}
 					disabled={!data.chooser['.controllable'].data}
