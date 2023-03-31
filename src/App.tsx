@@ -4,7 +4,7 @@ import {
 	DefaultMantineColor,
 	MantineProvider,
 } from '@mantine/core';
-import { useHotkeys, useLocalStorage } from '@mantine/hooks';
+import { useHotkeys, useLocalStorage, useWindowEvent } from '@mantine/hooks';
 import { ColorProvider } from '@/components/ColorProvider';
 import { Layout } from '@/components/Layout';
 import { listen } from '@tauri-apps/api/event';
@@ -67,11 +67,19 @@ export const App = () => {
 				const boardStore = getBoardStore();
 				openModal({
 					title: 'Select a widget',
-					children: <SelectWidgetModal board={boardStore.boards[boardStore.currentBoard]} />,
+					children: (
+						<SelectWidgetModal
+							board={boardStore.boards[boardStore.currentBoard]}
+						/>
+					),
 				});
 			},
 		],
 	]);
+
+	useWindowEvent('online', () => {
+		startClient();
+	});
 
 	useEffect(() => {
 		startClient();

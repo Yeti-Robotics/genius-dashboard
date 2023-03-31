@@ -8,7 +8,9 @@ mod log;
 use std::{collections::HashMap, net::SocketAddr, str::FromStr, time::Duration};
 
 use arrayvec::ArrayVec;
-use network_tables::v4::{Config, MessageData, PublishedTopic, SubscriptionOptions, Type};
+use network_tables::v4::{
+    Config, MessageData, PublishProperties, PublishedTopic, SubscriptionOptions, Type,
+};
 use once_cell::sync::OnceCell;
 use serde::Deserialize;
 use tauri::{Manager, Window};
@@ -42,15 +44,26 @@ async fn create_new_client(
     let new_client = network_tables::v4::Client::try_new_w_config(
         addr,
         Config {
-            connect_timeout: 3000,
+            connect_timeout: 500,
+            disconnect_retry_interval: 3000,
             on_announce: Box::new(move |announced_topics| {
-                on_announce_window.emit("announce", announced_topics).ok();
+                let on_announce_window = on_announce_window.clone();
+                Box::pin(async move {
+                    on_announce_window.emit("announce", announced_topics).ok();
+                })
             }),
             on_disconnect: Box::new(move || {
-                on_disconnect_window.emit("disconnect", ()).ok();
+                let on_disconnect_window = on_disconnect_window.clone();
+                Box::pin(async move {
+                    on_disconnect_window.emit("disconnect", ()).ok();
+                })
             }),
             on_reconnect: Box::new(move || {
-                on_reconnect_window.emit("reconnect", ()).ok();
+                let on_reconnect_window = on_reconnect_window.clone();
+                Box::pin(async move {
+                    on_reconnect_window.emit("reconnect", ()).ok();
+                    PUBLISHED_TOPICS.get().unwrap().lock().await.clear();
+                })
             }),
             ..Default::default()
         },
@@ -73,39 +86,37 @@ async fn create_new_client(
     let window = window.clone();
 
     tauri::async_runtime::spawn(async move {
-        println!("Started sub");
         let mut msg_buf = ArrayVec::<MessageData, 64>::new();
 
         loop {
             select! {
-                    biased;
-                    message = subscription.next() => {
-                        if let Some(message) = message {
-                            if message.topic_name.contains("Auto") {println!("Got message: {:?}", message);}
-                            match msg_buf.try_push(message) {
-                                Ok(_) => {},
-                                Err(err) => {
-                                    // Buffer is full, send it to frontend
-                                    window.emit("message", &msg_buf).ok();
-                                    msg_buf.clear();
-                                    // SAFETY: Just cleared buffer + no awaits = safe 😁
-                                    unsafe { msg_buf.push_unchecked(err.element()) };
-                                }
+                biased;
+                message = subscription.next() => {
+                    if let Some(message) = message {
+                        match msg_buf.try_push(message) {
+                            Ok(_) => {},
+                            Err(err) => {
+                                // Buffer is full, send it to frontend
+                                window.emit("message", &msg_buf).ok();
+                                msg_buf.clear();
+                                // SAFETY: Just cleared buffer + no awaits = safe 😁
+                                unsafe { msg_buf.push_unchecked(err.element()) };
                             }
-                        } else {
-                            // If sub returns none, break it out
-                            println!("Subscription returned Non");
-                            break;
                         }
-                    },
-                    _ = tokio::time::sleep(Duration::from_millis(7)) => {
-                        // Every 7 ms (for now) send all currently buffered messages to the frontend
-                        if !msg_buf.is_empty() {
-                            window.emit("message", &msg_buf).ok();
-                            msg_buf.clear();
-                        };
-                    },
-                }
+                    } else {
+                        // If sub returns none, break it out
+                        println!("Subscription returned Non");
+                        break;
+                    }
+                },
+                _ = tokio::time::sleep(Duration::from_millis(7)) => {
+                    // Every 7 ms (for now) send all currently buffered messages to the frontend
+                    if !msg_buf.is_empty() {
+                        window.emit("message", &msg_buf).ok();
+                        msg_buf.clear();
+                    };
+                },
+            }
         }
     });
 
@@ -137,7 +148,8 @@ async fn publish_value(
     topic_type: Type,
     value: network_tables::Value,
 ) -> Result<(), String> {
-    if let Some(client) = CLIENT.get().unwrap().lock().await.as_ref() {
+    let client = CLIENT.get().unwrap().lock().await;
+    if let Some(client) = client.as_ref() {
         let mut published_topics = PUBLISHED_TOPICS.get().unwrap().lock().await;
         if let Some(existing) = published_topics.get(&topic) {
             client
@@ -146,7 +158,14 @@ async fn publish_value(
                 .map_err(|e| e.to_string())?;
         } else {
             let published_topic = client
-                .publish_topic(&topic, topic_type, None)
+                .publish_topic(
+                    &topic,
+                    topic_type,
+                    Some(PublishProperties {
+                        retained: Some(true),
+                        ..Default::default()
+                    }),
+                )
                 .await
                 .map_err(|e| e.to_string())?;
 

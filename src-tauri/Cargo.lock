@@ -800,6 +800,7 @@ dependencies = [
  "arrayvec",
  "network-tables",
  "once_cell",
+ "parking_lot",
  "serde",
  "serde_json",
  "tauri",
@@ -1388,9 +1389,9 @@ dependencies = [
 
 [[package]]
 name = "network-tables"
-version = "0.0.16"
+version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a45d47ee2469d0f977555127e9d8fa91858b873c15aed49ef29ce28e8ecd666"
+checksum = "f9e998b1bcd1e52b478edf75a41a810c6438fae093d1b247014181b9c2add659"
 dependencies = [
  "futures-util",
  "parking_lot",
