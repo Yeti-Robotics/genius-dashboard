@@ -1389,9 +1389,9 @@ dependencies = [
 
 [[package]]
 name = "network-tables"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9e998b1bcd1e52b478edf75a41a810c6438fae093d1b247014181b9c2add659"
+checksum = "dc9f92a3b9ed33b96f6f693fca34d7b2ce1dbdcca329cc463a8c05499db40b29"
 dependencies = [
  "futures-util",
  "parking_lot",

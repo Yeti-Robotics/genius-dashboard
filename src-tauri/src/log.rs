@@ -22,6 +22,8 @@ pub fn init_logger(app: &tauri::App) -> Result<(), std::io::Error> {
         let log_file = open_or_create(log_file_path)?;
         tracing_subscriber::fmt()
             .with_env_filter("info")
+            // Makes da logs readable
+            .with_ansi(false)
             .with_writer(log_file)
             .init();
     };

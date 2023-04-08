@@ -17,7 +17,7 @@ use tauri::{Manager, Window};
 use tokio::{select, sync::Mutex};
 
 static CLIENT: OnceCell<Mutex<Option<network_tables::v4::Client>>> = OnceCell::new();
-static PUBLISHED_TOPICS: OnceCell<Mutex<HashMap<String, PublishedTopic>>> = OnceCell::new();
+static PUBLISHED_TOPICS: OnceCell<parking_lot::Mutex<HashMap<String, PublishedTopic>>> = OnceCell::new();
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -62,7 +62,7 @@ async fn create_new_client(
                 let on_reconnect_window = on_reconnect_window.clone();
                 Box::pin(async move {
                     on_reconnect_window.emit("reconnect", ()).ok();
-                    PUBLISHED_TOPICS.get().unwrap().lock().await.clear();
+                    PUBLISHED_TOPICS.get().unwrap().lock().clear();
                 })
             }),
             ..Default::default()
@@ -129,7 +129,7 @@ async fn start_client(window: Window, addr: &str) -> Result<(), String> {
     let socket_addr = SocketAddr::from_str(addr).map_err(|e| e.to_string())?;
     let new_client = create_new_client(&window, socket_addr).await?;
     // Must clear published topics when creating a new client
-    PUBLISHED_TOPICS.get().unwrap().lock().await.clear();
+    PUBLISHED_TOPICS.get().unwrap().lock().clear();
     *CLIENT.get().unwrap().lock().await = Some(new_client);
     window.emit("connect", ()).ok();
 
@@ -150,10 +150,11 @@ async fn publish_value(
 ) -> Result<(), String> {
     let client = CLIENT.get().unwrap().lock().await;
     if let Some(client) = client.as_ref() {
-        let mut published_topics = PUBLISHED_TOPICS.get().unwrap().lock().await;
-        if let Some(existing) = published_topics.get(&topic) {
+        // Have to clone here to avoid deadlock on disconnect
+        let existing = PUBLISHED_TOPICS.get().unwrap().lock().get(&topic).cloned();
+        if let Some(existing) = existing {
             client
-                .publish_value(existing, &value)
+                .publish_value(&existing, &value)
                 .await
                 .map_err(|e| e.to_string())?;
         } else {
@@ -174,7 +175,7 @@ async fn publish_value(
                 .await
                 .map_err(|e| e.to_string());
             // Add topic into hashmap no matter what
-            published_topics.insert(topic, published_topic);
+            PUBLISHED_TOPICS.get().unwrap().lock().insert(topic, published_topic);
 
             result?;
         }
@@ -185,7 +186,7 @@ async fn publish_value(
 
 fn main() {
     CLIENT.set(Mutex::new(None)).unwrap();
-    PUBLISHED_TOPICS.set(Mutex::new(HashMap::new())).unwrap();
+    PUBLISHED_TOPICS.set(parking_lot::Mutex::new(HashMap::new())).unwrap();
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -202,7 +203,10 @@ fn main() {
             }
 
             // Listen for logs from the frontend
+            #[allow(unreachable_code, unused_variables)]
             app.listen_global("log", |e| {
+                // Don't log frontend stuff to stdout in debug mode
+                #[cfg(debug_assertions)] return;
                 let payload = serde_json::from_str::<LogEvent>(e.payload().unwrap()).unwrap();
 
                 match payload.log_type {
